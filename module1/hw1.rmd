@@ -50,7 +50,7 @@ The dataframe contains 5001 rows. Interesting given the highest numeric Rank is 
 
 ### Unique values per column
 
-Turns out the dataframe contains 5001 rows, so let's investigate the number of Ranks included and the number of Companies identified, and the number of states included.
+Turns out the dataframe contains 5001 rows, so let's investigate the number of ranks included and the number of companies identified, and the number of states included.
 
 ```{r}
 # Ouput number of distinct values for each column
@@ -59,7 +59,7 @@ sapply(inc, function(x) length(unique(x)))
 
 The number of ranks being 4999 indicates duplicate rank numbers exist. We should be able to identify two ranks duplicated or one rank used three times.
 
-The Name column returns 5001, a comforting result which indicates each name is unique, and thus should represent a different company.
+The name column returns 5001, a comforting result which indicates each name is unique, and thus should represent a different company.
 
 The state count results in 52. Given 50 states in the United States, let's see if Washington, D.C. is included or perhaps a couple of US territories. If not true, then perhaps a company exists that is not in the United States.
 
@@ -90,10 +90,10 @@ Not too surprisingly, the two additional entries in the State column are DC (Was
 
 Create a graph that shows the distribution of companies in the dataset by State (ie how many are in each state). There are a lot of States, so consider which axis you should use. This visualization is ultimately going to be consumed on a 'portrait' oriented screen (ie taller than wide), which should further guide your layout choices.
 
+## Answer 1
+
 ```{r fig.width=8, fig.height=8}
 library(ggplot2)
-
-# Starting with example from R Graphics Cookbook (https://r-graphics.org/)
 
 # Bar graph of counts
 # This uses the mtcars data frame, with the "cyl" column for
@@ -120,19 +120,20 @@ ggplot(inc, aes(x = State)) +
 
 - Following some principles of Edward Tufte, and also with the default ggplot2 theme, the bars are one solid color, no reason to present each state with a different color. I removed the Y axis tick labels in favor of displaying the actual count for each bar on the graph itself.
 
-Sources:
+##### Sources:
 
 - https://r-graphics.org/index.html
 
 - https://stackoverflow.com/questions/50877853/ggplot-reverse-axis-order-for-factors
 
-http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html
+- http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html
+
 
 ## Question 2
 
 Let's dig in on the state with the 3rd most companies in the data set. Imagine you work for the state and are interested in how many people are employed by companies in different industries. Create a plot that shows the average and/or median employment by industry for companies in this state (only use cases with full data, use R's `complete.cases()` function.) In addition to this, your graph should show how variable the ranges are, and you should deal with outliers.
 
-### NY is 3rd
+### New York is 3rd
 
 Based on Question 1 output, New York is the state with the 3rd most companies.
 
@@ -141,10 +142,12 @@ Based on Question 1 output, New York is the state with the 3rd most companies.
 # Subset the intial dataframe to just the rows with State equal to 'NY'
 ny <- subset(inc, State == 'NY')
 
+# Output data for visual confirmation
 head(ny)
 
 nrow(ny)
 
+# Remove any non-complete rows from the NY dataframe
 ny_comp <- ny[complete.cases(ny), ]
 
 nrow(ny_comp)
@@ -155,8 +158,10 @@ Confirming the 311 rows of New York have complete data
 ```{r fig.width=8, fig.height=8, message=FALSE, warning=FALSE}
 library(dplyr)
 
+# Reorder based on the employee average instead of industry name
 ny$Industry = with(ny, reorder(Industry, Employees, mean))
 
+# Calculate the mean, min, and max of employees for each company and group by industry
 ny.summary <- ny %>%
   group_by(Industry) %>%
   summarise(
@@ -165,6 +170,7 @@ ny.summary <- ny %>%
     emp_max = max(Employees)
   )
 
+# Output the resulting dataframe for visual inspection
 ny.summary
 
 
@@ -177,7 +183,12 @@ dd <- ny.summary %>% filter(ny.summary$emp_max > maxval) %>%
 
 # Output resulting df
 dd
+```
 
+## Answer 2
+
+```{r fig.width=8, fig.height=8, messages=FALSE, warning=FALSE}
+# Round the mean values for display purposes
 ny.summary$emp_mean <- round(ny.summary$emp_mean, digits=0)
 
 # Plot the chart for Question 2
@@ -194,7 +205,19 @@ ggplot() +
                arrow = arrow(length = unit(0.3,"cm")))
 ```
 
-Sources:
+#### Explanation of decisions
+
+- Based on the question requiring an identification of the ranges, initially I generated a boxplot using geom_boxplot(). But then the more I thought about the prompt, I realized the boxplot captures the entire range as long as all the outliers are intact along with median value and the quartiles of distribution. As the prompt left the design open-ended (on purpose), I chose the geom_linerage approach with an identifier for the average as the final approach. I wanted to portray just the data and information requested in the prompt, and thus not include additional information. Yes, the Edward Tufte approach is really starting to weigh on my design decisions. I was imagining this chart in a newspaper or on a news website, not as a submission for a data science analysis project, thus the less-is-more approach to the presented chart.
+
+- I ordered the industries by average employees. Given this statistic as the focus of the chart, ordering on the statistic brings awareness to its importance. Also, I figured ordering by alphabetized industry names would provide little value. Sure, the alphabetized list provides a mechanism of order to a viewer, but the names aren't household names in the way the state abbreviations are in Question 1. I wouldn't expect a casual viewer to look for "Transportation" as "Logistics & Transportation".
+
+- Using geom_linerange, I'm able to create the range of data using an indiscreet black line, a la Tufte. The average for each industry is portrayed as a diamond on the range line along with the true numeric value. I believe the specific number provides more clarity to a viewer instead of requiring the viewer to estimate the number based on the X axis values. I left the X axis labels on the chart, as many averages are below 1000, I felt the higher numbers would be harder to estimate because the chart doesn't stop at an exact multiple of 1000.
+
+- I presented the industry names on the Y axis, following the approach in Question 1. This allows for a long list of industry names and also allows the names to be written horizontally (not tilted).
+
+- As for the outliers, I'm not completely satisfied with this approach, as I added arrows to the two lines that would extend past the graph's right edge. With those arrows, I also identify the specific maximum values of the range. The size of the chart seemed a good compromise to capture all the numbers below 1000 along with capturing the extent to which the two outliers extend farther beyond the presented chart.
+
+##### Sources:
 
 - http://www.sthda.com/english/articles/32-r-graphics-essentials/132-plot-grouped-data-box-plot-bar-plot-and-more/#mean-and-median-plots-with-error-bars
 
@@ -204,7 +227,7 @@ Sources:
 
 - https://www.r-graph-gallery.com/267-reorder-a-variable-in-ggplot2.html
 
-https://stackoverflow.com/questions/29463067/include-indication-of-extreme-outliers-in-ggplot
+- https://stackoverflow.com/questions/29463067/include-indication-of-extreme-outliers-in-ggplot
 
 - https://stackoverflow.com/questions/5677885/ignore-outliers-in-ggplot2-boxplot
 
@@ -215,18 +238,21 @@ Now imagine you work for an investor and want to see which industries generate t
 ```{r fig.width=8, fig.height=8}
 library(ggthemes)
 
-# theme_set(theme_tufte())
+# Set theme from package ggthemes
 theme_set(theme_fivethirtyeight())
-#theme_set(theme_wsj())
 
+# Remove incomplete rows
 inc <- inc[complete.cases(inc), ]
 
 nrow(inc)
 
+# Calculate the revenue by the number of employees for each company
 inc$Rev_Per_Emp <- inc$Revenue / inc$Employees
 
+# Reorder by industry using the mean of the revenue per employee
 inc$Industry = with(inc, reorder(Industry, Rev_Per_Emp, mean))
 
+# Graph the boxplot of the data using ggplot
 ggplot(inc, aes(x=Industry, y=Rev_Per_Emp)) + 
   geom_boxplot(outlier.shape = NA) +
   stat_summary(fun.y = "mean", geom = "point", shape = 23, size = 2, fill = "white") +
@@ -236,12 +262,18 @@ ggplot(inc, aes(x=Industry, y=Rev_Per_Emp)) +
   coord_flip(ylim = c(0, 1800000))
 ```
 
-```{r fig.width=8, fig.height=8, messages=FALSE, warning=FALSE}
+As mentioned in Question 2, I first attempted a boxplot in order to capture the range of values. The more I thought about the prompt, the less I considered the boxplot the correct the approach. Nonetheless, I left the boxplot here as evidence of my thought process. The boxplot does capture the revenue per employee by industry, but doesn't exactly capture the full range of values. The outliers are not captured on this graph, and thus the graph doesn't identify the full range as requested in the question prompt. 
 
+I understood the prompt to imply a presentation in a print publication or news website, thus the use of boxplots would be overkill to a typical consumer of news graphics. I also used the theme of the website fivethirtyeight.com from the ggthemes package for experimentation purposes.
+
+```{r fig.width=8, fig.height=8, messages=FALSE, warning=FALSE}
+# Set theme to Tufte, an homage
 theme_set(theme_tufte())
 
+# Reorder the data based on the calculation of revenue per employee
 inc$Industry = with(inc, reorder(Industry, Rev_Per_Emp, mean))
 
+# Calculate the mean, min, and max of the revenue per employee and group by industry
 inc.summary <- inc %>%
   group_by(Industry) %>%
   summarise(
@@ -250,8 +282,10 @@ inc.summary <- inc %>%
     rev_emp_max = max(Rev_Per_Emp)
   )
 
+# Output for visual inspection
 inc.summary
 
+# Round the mean and max values for presentation purposes
 inc.summary$rev_emp_mean <- round(inc.summary$rev_emp_mean, digits=0)
 inc.summary$rev_emp_max <- round(inc.summary$rev_emp_max, digits=0)
 
@@ -262,10 +296,14 @@ dd <- inc.summary %>% filter(inc.summary$rev_emp_max > maxval) %>%
         group_by(Industry) %>%
           summarise(outlier_txt=paste(rev_emp_max,collapse=","))
 
-# Output resulting df
+# Output resulting df of outliers
 dd
+```
 
-# Plot the chart for Question 2
+## Answer 3
+
+```{r fig.width=8, fig.height=8, messages=FALSE, warning=FALSE}
+# Plot the chart for Question 3
 ggplot() + 
   geom_linerange(inc.summary, mapping=aes(x=Industry, ymin=rev_emp_min, ymax=rev_emp_max), width=0.2, size=1) +
   geom_point(inc.summary, mapping=aes(x=Industry, y=rev_emp_mean), size=2, shape=23, fill="white") +
@@ -278,11 +316,25 @@ ggplot() +
   geom_segment(data=dd,aes(x=Industry, y=maxval*0.95,yend=8400000, xend=factor(Industry)),
               arrow = arrow(length = unit(0.3,"cm"))) +
   scale_y_continuous(labels = scales::number)
-  
-  
 ```
 
-Sources:
+#### Explanation of decisions
+
+- Overall, I followed the display approach used for Question 2. The boxplot was considered first, but instead I used the linerange to clearly denote the range of values for each industry. The boxplot gives more information but doesn't capture the full range. I wanted the chart to capture the exact data requested in the question prompt, and no more.
+
+- The industries are presented on the Y axis to allow for easy readability of the industry names instead of presenting the names tilted on the X axis.
+
+- The industries are ordered by the average of revenue per employee. As the prompt requests the presentation of this statistic primarily, I chose to order by this statistic to bring more attention specifically to that information.
+
+- In an effort to indicate the exact values, the averages are presented as white diamonds along with the exact number rounded to a whole number. I did keep the X axis numeric values to help readability, but I presented the exact averages to provide the information clearly and not require visual estimating by the viewer.
+
+- The outliers are treated the same as in Question 2. Arrow heads are presented for those line ranges that extend beyond the right edge of the chart with the maximum value. To me, not the ideal presentation of the outliers but does include the information.
+
+- The selection of just over 8 million as the upper boundary was based on trial an error in trying to allow enough space for the line ranges and averages below 1 million while also having as few ranges extend beyond the chart. At a lower maximum value on the X axis, say 2 million, the averages would be much easier to focus on and compare, but then most line ranges would extend beyond the chart and thus provide no real value. Again, a compromise to capture the averages and full line ranges with just a few identified outliers.
+
+- I did have to manipulate the X axis labels to show the full numbers, multiples of 1 million. By default the numbers were presented in scientific notation, but I felt that would be too obtuse of a casual viewer.
+
+##### Sources:
 
 - https://stat.ethz.ch/R-manual/R-devel/library/base/html/Round.html
 
