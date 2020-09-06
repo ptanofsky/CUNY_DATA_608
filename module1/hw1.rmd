@@ -122,7 +122,11 @@ ggplot(inc, aes(x = State)) +
 
 Sources:
 
+- https://r-graphics.org/index.html
+
 - https://stackoverflow.com/questions/50877853/ggplot-reverse-axis-order-for-factors
+
+http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html
 
 ## Question 2
 
@@ -182,13 +186,27 @@ ggplot() +
   geom_point(ny.summary, mapping=aes(x=Industry, y=emp_mean), size=2, shape=23, fill="white") +
   geom_text(ny.summary, mapping=aes(x=Industry, y=emp_mean, label=emp_mean), size=3, vjust=-.6, nudge_x = 0.05) +
   coord_flip(ylim=c(0, maxval)) +
-  ggtitle("Average Employees with Range by Industry for New York") +
+  ggtitle("Average Employees with Range for New York") +
   xlab("Industry") +
   ylab("Employees") +
   geom_text(data=dd,aes(x=Industry, y=maxval,label=outlier_txt),size=3,vjust=-.6,hjust=.5) +
   geom_segment(data=dd,aes(x=Industry, y=maxval*0.95,yend=3365, xend=factor(Industry)),
                arrow = arrow(length = unit(0.3,"cm")))
 ```
+
+Sources:
+
+- http://www.sthda.com/english/articles/32-r-graphics-essentials/132-plot-grouped-data-box-plot-bar-plot-and-more/#mean-and-median-plots-with-error-bars
+
+- http://sape.inf.usi.ch/quick-reference/ggplot2/geom_linerange
+
+- https://ggplot2.tidyverse.org/reference/geom_linerange.html
+
+- https://www.r-graph-gallery.com/267-reorder-a-variable-in-ggplot2.html
+
+https://stackoverflow.com/questions/29463067/include-indication-of-extreme-outliers-in-ggplot
+
+- https://stackoverflow.com/questions/5677885/ignore-outliers-in-ggplot2-boxplot
 
 ## Question 3
 
@@ -198,7 +216,7 @@ Now imagine you work for an investor and want to see which industries generate t
 library(ggthemes)
 
 # theme_set(theme_tufte())
-#theme_set(theme_fivethirtyeight())
+theme_set(theme_fivethirtyeight())
 #theme_set(theme_wsj())
 
 inc <- inc[complete.cases(inc), ]
@@ -218,7 +236,61 @@ ggplot(inc, aes(x=Industry, y=Rev_Per_Emp)) +
   coord_flip(ylim = c(0, 1800000))
 ```
 
-```{}
+```{r fig.width=8, fig.height=8, messages=FALSE, warning=FALSE}
+
+theme_set(theme_tufte())
+
+inc$Industry = with(inc, reorder(Industry, Rev_Per_Emp, mean))
+
+inc.summary <- inc %>%
+  group_by(Industry) %>%
+  summarise(
+    rev_emp_mean = mean(Rev_Per_Emp),
+    rev_emp_min = min(Rev_Per_Emp),
+    rev_emp_max = max(Rev_Per_Emp)
+  )
+
+inc.summary
+
+inc.summary$rev_emp_mean <- round(inc.summary$rev_emp_mean, digits=0)
+inc.summary$rev_emp_max <- round(inc.summary$rev_emp_max, digits=0)
+
+# Trying to identify outliers
+maxval <- 8000000
+
+dd <- inc.summary %>% filter(inc.summary$rev_emp_max > maxval) %>%
+        group_by(Industry) %>%
+          summarise(outlier_txt=paste(rev_emp_max,collapse=","))
+
+# Output resulting df
+dd
+
+# Plot the chart for Question 2
+ggplot() + 
+  geom_linerange(inc.summary, mapping=aes(x=Industry, ymin=rev_emp_min, ymax=rev_emp_max), width=0.2, size=1) +
+  geom_point(inc.summary, mapping=aes(x=Industry, y=rev_emp_mean), size=2, shape=23, fill="white") +
+  geom_text(inc.summary, mapping=aes(x=Industry, y=rev_emp_mean, label=rev_emp_mean), size=3, vjust=-.6, nudge_x = 0.05) +
+  coord_flip(ylim=c(0, maxval)) +
+  ggtitle("Average Revenue Per Employee with Range") +
+  xlab("Industry") +
+  ylab("Revenue Per Employee") +
+  geom_text(data=dd,aes(x=Industry, y=maxval,label=outlier_txt),size=3,vjust=-.6,hjust=.5) +
+  geom_segment(data=dd,aes(x=Industry, y=maxval*0.95,yend=8400000, xend=factor(Industry)),
+              arrow = arrow(length = unit(0.3,"cm"))) +
+  scale_y_continuous(labels = scales::number)
+  
+  
 ```
 
+Sources:
+
+- https://stat.ethz.ch/R-manual/R-devel/library/base/html/Round.html
+
+- https://stackoverflow.com/questions/42323247/how-to-force-axis-values-to-scientific-notation-in-ggplot
+
+- https://cran.r-project.org/web/packages/scales/scales.pdf
+
+- https://stackoverflow.com/questions/21533158/remove-outliers-fully-from-multiple-boxplots-made-with-ggplot2-in-r-and-display
+
+- https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/
 
