@@ -1,5 +1,7 @@
 ---
-title: "R Notebook"
+title: "DATA 608: Assignment 1"
+author: "Philip Tanofsky"
+date: "9/5/2020"
 output:
   html_document: default
   html_notebook: default
@@ -9,7 +11,7 @@ output:
 
 I have provided you with data about the 5,000 fastest growing companies in the US, as compiled by Inc. magazine. lets read this in:
 
-```{r}
+```{r read-data}
 
 inc <- read.csv("https://raw.githubusercontent.com/charleyferrari/CUNY_DATA_608/master/module1/Data/inc5000_data.csv", header= TRUE)
 
@@ -30,40 +32,236 @@ summary(inc)
 
 Think a bit on what these summaries mean. Use the space below to add some more relevant non-visual exploratory information you think helps you understand this data:
 
+## Exploratory statistics
+
+### Number of Rows
+
+The rank appears to be 1 through 5000. So let's see if there are exactly 5000 rows.
+
 ```{r}
+nrow(inc)
 
-# Insert your code here, create more chunks as necessary
+inc_comp <- inc[complete.cases(inc), ]
 
+nrow(inc_comp)
 ```
+
+The dataframe contains 5001 rows. Interesting given the highest numeric Rank is 5000. Also, the number of rows with at least one missing element is 12 (5001-4989).
+
+### Unique values per column
+
+Turns out the dataframe contains 5001 rows, so let's investigate the number of Ranks included and the number of Companies identified, and the number of states included.
+
+```{r}
+# Ouput number of distinct values for each column
+sapply(inc, function(x) length(unique(x)))
+```
+
+The number of ranks being 4999 indicates duplicate rank numbers exist. We should be able to identify two ranks duplicated or one rank used three times.
+
+The Name column returns 5001, a comforting result which indicates each name is unique, and thus should represent a different company.
+
+The state count results in 52. Given 50 states in the United States, let's see if Washington, D.C. is included or perhaps a couple of US territories. If not true, then perhaps a company exists that is not in the United States.
+
+### Identify duplicate ranks
+
+```{r}
+# Identify duplicated values for Rank
+inc$dupe <- duplicated(inc$Rank)
+
+subset(inc, dupe == TRUE)
+
+subset(inc, Rank == 3424 | Rank == 5000)
+```
+
+Based on above output, the ranks of 3424 and 5000 are each used twice. Further investigation of Stemp Systems Group finds the Growth Rate value indicates the company should be ranked higher. After visual examination of the dataset, I find rank 218 is missing and appears Stemp Systems Group should be there.
+
+As for rank 5000, based on the pattern of duplicate growth rates, yet unique ranks, the final rank should be 5001.
+
+### 52 States ... United States is growing?
+
+```{r}
+unique(inc$State)
+```
+
+Not too surprisingly, the two additional entries in the State column are DC (Washington, D.C.) and PR (Puerto Rico). This discovery is certainly reasonable given the territorial make-up of the United States.
 
 ## Question 1
 
 Create a graph that shows the distribution of companies in the dataset by State (ie how many are in each state). There are a lot of States, so consider which axis you should use. This visualization is ultimately going to be consumed on a 'portrait' oriented screen (ie taller than wide), which should further guide your layout choices.
 
-```{r}
+```{r fig.width=8, fig.height=8}
+library(ggplot2)
 
-# Answer Question 1 here
+# Starting with example from R Graphics Cookbook (https://r-graphics.org/)
 
+# Bar graph of counts
+# This uses the mtcars data frame, with the "cyl" column for
+# x position. The y position is calculated by counting the number of rows for
+# each value of cyl.
+ggplot(inc, aes(x = State)) + 
+  geom_bar() +
+  coord_flip() +
+  scale_x_discrete(limits = rev(levels(as.factor(inc$State)))) +
+  ggtitle("Companies per State") +
+  xlab("State") +
+  ylab("Companies") +
+  geom_text(stat='count', aes(label=..count..), hjust=-.3) +
+  theme(axis.text.x=element_blank()) # Following the gif from the week 2 discussion
 ```
 
-## Quesiton 2
+#### Explanation of decisions
 
-Lets dig in on the state with the 3rd most companies in the data set. Imagine you work for the state and are interested in how many people are employed by companies in different industries. Create a plot that shows the average and/or median employment by industry for companies in this state (only use cases with full data, use R's `complete.cases()` function.) In addition to this, your graph should show how variable the ranges are, and you should deal with outliers.
+- I chose a bar graph as the chart style allows for clear comparison of the different bars. Each state is an individual count so a line graph would not have made any sense. I also chose not to use a histogram or distribution chart as that would force the states to be out of alphabetical order. Also, the histogram or distribution plot often implies a relationship for the given distribution. Seeing as the states are vastly different in size and population, not each state is equal in that regard.
+
+- As the number of states is 52 in the chart, I decided to list the states along the Y axis. This allows the chart to be presented in portrait orientation. I also had to reorder the list to ensure the state abbreviations are alphabetical starting at the top. I also believe the choice of Y axis for states is good because the abbreviations aren't overlapping and aren't tilted at 30 degrees which often happens when many categories are identified along an X axis.
+
+- I chose alphabetical ordering over numeric ordering because I believe the alphabetizing of the state abbreviations allows for easier comprehension by the viewer. 
+
+- Following some principles of Edward Tufte, and also with the default ggplot2 theme, the bars are one solid color, no reason to present each state with a different color. I removed the Y axis tick labels in favor of displaying the actual count for each bar on the graph itself.
+
+Sources:
+
+- https://stackoverflow.com/questions/50877853/ggplot-reverse-axis-order-for-factors
+
+## Question 2
+
+Let's dig in on the state with the 3rd most companies in the data set. Imagine you work for the state and are interested in how many people are employed by companies in different industries. Create a plot that shows the average and/or median employment by industry for companies in this state (only use cases with full data, use R's `complete.cases()` function.) In addition to this, your graph should show how variable the ranges are, and you should deal with outliers.
+
+### NY is 3rd
+
+Based on Question 1 output, New York is the state with the 3rd most companies.
 
 ```{r}
 
-# Answer Question 2 here
+# Subset the intial dataframe to just the rows with State equal to 'NY'
+ny <- subset(inc, State == 'NY')
 
+head(ny)
+
+nrow(ny)
+
+ny_comp <- ny[complete.cases(ny), ]
+
+nrow(ny_comp)
+```
+
+Confirming the 311 rows of New York have complete data
+
+```{r fig.width=8, fig.height=8, eval=FALSE}
+library("dplyr")
+library("grid") # needed for arrow() function
+
+#ggplot(ny, aes(x=factor(Industry), y=Employees)) + 
+#  stat_summary(fun.y="mean", geom="bar")
+
+#outlier_values <- boxplot.stats(ny$Employees)$out  # outlier values.
+#mtext(paste("Outliers: ", paste(outlier_values, collapse=", ")), cex=0.6)
+
+stats <- boxplot.stats(ny$Employees)$stats  # outlier values.
+
+stats
+
+ggplot(ny, aes(x=Industry, y=Employees)) + 
+#  geom_boxplot(outlier.shape = NA) +
+  stat_summary(fun.y = "mean", geom = "point", shape = 23, size = 2, fill = "white") +
+  coord_flip(ylim = c(0, 1500))
+
+# From https://stackoverflow.com/questions/29463067/include-indication-of-extreme-outliers-in-ggplot
+
+
+p <- ggplot(ny, aes(x=Industry, y=Employees))
+p <- p + geom_boxplot()
+
+maxval <- 850
+
+dd <- ny %>% filter(Employees>maxval) %>%
+    group_by(Industry) %>%
+        summarise(outlier_txt=paste(Employees,collapse=","))
+
+p2 <- p + geom_boxplot() +
+    scale_y_continuous(limits=c(min(ny$Employees),maxval))+
+       geom_text(data=dd,aes(y=maxval,label=outlier_txt),
+                 size=3,vjust=-1,hjust=.75)+
+          geom_segment(data=dd,aes(y=maxval*0.95,yend=maxval,
+                       xend=factor(Industry)),
+                 arrow = arrow(length = unit(0.1,"cm")))
+p2 + 
+  stat_summary(fun.y = "mean", geom = "point", shape = 23, size = 2, fill = "white") + 
+  coord_flip()
+```
+
+Average Employees by Industry for New York
+
+```{r fig.width=8, fig.height=8}
+library(dplyr)
+
+ny$Industry = with(ny, reorder(Industry, Employees, mean))
+
+ny.summary <- ny %>%
+  group_by(Industry) %>%
+  summarise(
+#    emp_sd = sd(Employees, na.rm = TRUE),
+    emp_mean = mean(Employees),
+    emp_min = min(Employees),
+    emp_max = max(Employees)
+  )
+
+ny.summary
+
+##
+
+# Trying to identify outliers
+maxval <- 3200
+
+dd <- ny.summary %>% filter(ny.summary$emp_max > maxval) %>%
+        group_by(Industry) %>%
+          summarise(outlier_txt=paste(emp_max,collapse=","))
+
+dd
+##
+
+
+ggplot() + 
+  geom_linerange(ny.summary, mapping=aes(x=Industry, ymin=emp_min, ymax=emp_max), width=0.2, size=1) +
+  geom_point(ny.summary, mapping=aes(x=Industry, y=emp_mean), size=2, shape=23, fill="white") +
+  coord_flip(ylim=c(0, maxval)) +
+  ggtitle("Average Employees with Range by Industry for New York") +
+  xlab("Industry") +
+  ylab("Employees") +
+  geom_text(data=dd,aes(x=Industry, y=maxval,label=outlier_txt),size=3,vjust=-.5,hjust=.25)
+#  geom_segment(data=dd,aes(x=Industry, y=maxval*0.95,yend=maxval, xend=factor(Industry)),
+#    arrow = arrow(length = unit(0.1,"cm")))
+
+
+#pp <- ggplot(ny, aes(x=Industry, y=Employees))
+#pp + geom_linerange(aes(ymin = 0, ymax = 10000))
 ```
 
 ## Question 3
 
 Now imagine you work for an investor and want to see which industries generate the most revenue per employee. Create a chart that makes this information clear. Once again, the distribution per industry should be shown.
 
-```{r}
+```{r fig.width=8, fig.height=8}
+library(ggthemes)
 
-# Answer Question 3 here
+# theme_set(theme_tufte())
+#theme_set(theme_fivethirtyeight())
+#theme_set(theme_wsj())
 
+inc <- inc[complete.cases(inc), ]
+
+nrow(inc)
+
+inc$Rev_Per_Emp <- inc$Revenue / inc$Employees
+
+ggplot(inc, aes(x=Industry, y=Rev_Per_Emp)) + 
+  geom_boxplot(outlier.shape = NA) +
+  stat_summary(fun.y = "mean", geom = "point", shape = 23, size = 2, fill = "white") +
+  ggtitle("Revenue Per Employee") +
+  xlab("Industry") +
+  ylab("Revenue") +
+  coord_flip(ylim = c(0, 1800000))
 ```
 
 
