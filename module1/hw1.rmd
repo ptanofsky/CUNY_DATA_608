@@ -148,52 +148,7 @@ nrow(ny_comp)
 
 Confirming the 311 rows of New York have complete data
 
-```{r fig.width=8, fig.height=8, eval=FALSE}
-library("dplyr")
-library("grid") # needed for arrow() function
-
-#ggplot(ny, aes(x=factor(Industry), y=Employees)) + 
-#  stat_summary(fun.y="mean", geom="bar")
-
-#outlier_values <- boxplot.stats(ny$Employees)$out  # outlier values.
-#mtext(paste("Outliers: ", paste(outlier_values, collapse=", ")), cex=0.6)
-
-stats <- boxplot.stats(ny$Employees)$stats  # outlier values.
-
-stats
-
-ggplot(ny, aes(x=Industry, y=Employees)) + 
-#  geom_boxplot(outlier.shape = NA) +
-  stat_summary(fun.y = "mean", geom = "point", shape = 23, size = 2, fill = "white") +
-  coord_flip(ylim = c(0, 1500))
-
-# From https://stackoverflow.com/questions/29463067/include-indication-of-extreme-outliers-in-ggplot
-
-
-p <- ggplot(ny, aes(x=Industry, y=Employees))
-p <- p + geom_boxplot()
-
-maxval <- 850
-
-dd <- ny %>% filter(Employees>maxval) %>%
-    group_by(Industry) %>%
-        summarise(outlier_txt=paste(Employees,collapse=","))
-
-p2 <- p + geom_boxplot() +
-    scale_y_continuous(limits=c(min(ny$Employees),maxval))+
-       geom_text(data=dd,aes(y=maxval,label=outlier_txt),
-                 size=3,vjust=-1,hjust=.75)+
-          geom_segment(data=dd,aes(y=maxval*0.95,yend=maxval,
-                       xend=factor(Industry)),
-                 arrow = arrow(length = unit(0.1,"cm")))
-p2 + 
-  stat_summary(fun.y = "mean", geom = "point", shape = 23, size = 2, fill = "white") + 
-  coord_flip()
-```
-
-Average Employees by Industry for New York
-
-```{r fig.width=8, fig.height=8}
+```{r fig.width=8, fig.height=8, message=FALSE, warning=FALSE}
 library(dplyr)
 
 ny$Industry = with(ny, reorder(Industry, Employees, mean))
@@ -201,7 +156,6 @@ ny$Industry = with(ny, reorder(Industry, Employees, mean))
 ny.summary <- ny %>%
   group_by(Industry) %>%
   summarise(
-#    emp_sd = sd(Employees, na.rm = TRUE),
     emp_mean = mean(Employees),
     emp_min = min(Employees),
     emp_max = max(Employees)
@@ -209,7 +163,6 @@ ny.summary <- ny %>%
 
 ny.summary
 
-##
 
 # Trying to identify outliers
 maxval <- 3200
@@ -218,24 +171,23 @@ dd <- ny.summary %>% filter(ny.summary$emp_max > maxval) %>%
         group_by(Industry) %>%
           summarise(outlier_txt=paste(emp_max,collapse=","))
 
+# Output resulting df
 dd
-##
 
+ny.summary$emp_mean <- round(ny.summary$emp_mean, digits=0)
 
+# Plot the chart for Question 2
 ggplot() + 
   geom_linerange(ny.summary, mapping=aes(x=Industry, ymin=emp_min, ymax=emp_max), width=0.2, size=1) +
   geom_point(ny.summary, mapping=aes(x=Industry, y=emp_mean), size=2, shape=23, fill="white") +
+  geom_text(ny.summary, mapping=aes(x=Industry, y=emp_mean, label=emp_mean), size=3, vjust=-.6, nudge_x = 0.05) +
   coord_flip(ylim=c(0, maxval)) +
   ggtitle("Average Employees with Range by Industry for New York") +
   xlab("Industry") +
   ylab("Employees") +
-  geom_text(data=dd,aes(x=Industry, y=maxval,label=outlier_txt),size=3,vjust=-.5,hjust=.25)
-#  geom_segment(data=dd,aes(x=Industry, y=maxval*0.95,yend=maxval, xend=factor(Industry)),
-#    arrow = arrow(length = unit(0.1,"cm")))
-
-
-#pp <- ggplot(ny, aes(x=Industry, y=Employees))
-#pp + geom_linerange(aes(ymin = 0, ymax = 10000))
+  geom_text(data=dd,aes(x=Industry, y=maxval,label=outlier_txt),size=3,vjust=-.6,hjust=.5) +
+  geom_segment(data=dd,aes(x=Industry, y=maxval*0.95,yend=3365, xend=factor(Industry)),
+               arrow = arrow(length = unit(0.3,"cm")))
 ```
 
 ## Question 3
@@ -255,6 +207,8 @@ nrow(inc)
 
 inc$Rev_Per_Emp <- inc$Revenue / inc$Employees
 
+inc$Industry = with(inc, reorder(Industry, Rev_Per_Emp, mean))
+
 ggplot(inc, aes(x=Industry, y=Rev_Per_Emp)) + 
   geom_boxplot(outlier.shape = NA) +
   stat_summary(fun.y = "mean", geom = "point", shape = 23, size = 2, fill = "white") +
@@ -262,6 +216,9 @@ ggplot(inc, aes(x=Industry, y=Rev_Per_Emp)) +
   xlab("Industry") +
   ylab("Revenue") +
   coord_flip(ylim = c(0, 1800000))
+```
+
+```{}
 ```
 
 
