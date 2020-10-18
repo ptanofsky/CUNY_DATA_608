@@ -1,0 +1,23 @@
+Deployed App URL: https://mod-4-tano.herokuapp.com/
+
+Decisions for Dash app
+
+Used both Borough Name and Species combined to make API call using Socrata API. This ensures that the result count will be less than 1000 so I don't have to page through the results. This may have a small impact to the user experience as each time the dropdown is changed, the API is made, thus a momentarily lag may occur before the graphs update.
+
+I use the same dropdown selections for Question 1 and Question 2. Given the prompt poses both questions within the context of the borough and tree species, I decided to connect both graphs to the same dropdowns. Also, as I perform an API call on each dropdown, this would require less updates compared to providing a set of dropdowns for each Question.
+
+Question 1 chart: To display the proportion, I use the plotly express bar function to create the chart. Because I have the steward data included in the dataframe, the resulting bar chart is a stacked bar chart grouped by the health. This was a default behavior of the bar function, so instead of attempting to manipulate the chart into solid bars per health measure, I left the stack bar chart as-is. I did create a hovertemplate, so I could improve the resulting hover text which clarifies the steward value with the title "Steward".
+
+I believe the bar chart gives a clean visual of the proportions of each health by borough and tree species. I did not use a pie chart, as I know those are almost univerally discouraged, thus the bar chart allows for easy visual comparison along with the hovertext.
+
+Question 2: I'll admit, I'm not the most happy with this final design. I wanted to use a different chart type that bar chart, but I just couldn't find an example that worked better. I chose the bar chart using facetted subplots as I thought this was a good use of small multiples, the Tufte concept. By splitting the bar charts into subplots by steward value, this would allow the viewer to compare the health of the trees across all the steward values at once. Instead of using proportions as in Question 1, I left the Y axis as true count, as that gives a more realistic view of the number of trees with stewards.
+
+The facetted subplots are labeled on the X and Y axis as Health and Count respectively, and then each chart is labeled by the steward value for the given plot. I ordered the subplots to ensure the increasing number of stewards moved from left to right beginning with 'None'.
+
+To answer the question, I do think the graph is a bit misleading, because as the number of stewards increases the number of Good and Fair trees are often similar. Typically, the Steward value of None shows a high value of Good trees. So on the face of the graphs, it would appear Steward equal to None provides the best results, but my assumption is that the trees with a Steward count greater than None were once considerd trees in Poor health. Given that this data is a snapshot from 2015, the improvement of trees isn't captured. So even though these graphs don't capture the impact of stewards as accurately as it should, I do believe the stewards are having an impact given the Poor count for no Stewards is typically quite low, meaning the Stewards are nursing Poor and Fair health trees to Fair and finally back to Good.
+
+Heroku deploy:
+I figured I'd give the deployment a shot. After a couple hours of walking through the tutorial on the Heroku site (https://devcenter.heroku.com/articles/getting-started-with-python) and the Dash site (https://dash.plotly.com/deployment), I was able to successfully deploy the app ... definitely through some trial and error of troubleshooting various issues. The app is quite easy to update and redeploy each time a change is made as long as the imports don't change. The initial import and build of the app takes the most time.
+
+The app should be deployed and running. When submitting this assignment, I have set the scale=1, meaning the app is deployed and running through Heroku. The initial load may take a bit longer than expected as the app is likely in sleep mode.
+
