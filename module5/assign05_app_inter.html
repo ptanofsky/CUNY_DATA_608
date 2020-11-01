@@ -1,0 +1,150 @@
+<html>
+
+<!--
+
+	Assignment 05
+	Philip Tanofsky
+	DATA 608 CUNY Fall 2020
+-->
+
+
+    <head><title>Assignment 5 - Intermediate - Philip Tanofsky</title></head>
+
+    <body>
+
+        <h1>Part 1: Read CSV</h1>
+
+        <script src="https://d3js.org/d3.v6.min.js"></script>
+        <script type="text/javascript">
+
+            // Help from: https://stackoverflow.com/questions/9491885/csv-to-array-in-d3-js
+            var presData;
+            d3.csv("https://raw.githubusercontent.com/ptanofsky/CUNY_DATA_608/master/module5/data/presidents.csv").then(function(data) {
+		
+                presData = data;
+                createTableOfPresidentsOnLoad();
+            });
+
+            function createTableOfPresidentsOnLoad() {
+
+                var table = document.createElement('table');
+                table.border = '1';
+                var tableBody = document.createElement('tbody');
+                table.appendChild(tableBody)
+
+                var theadRow = document.createElement('tr');
+                tableBody.appendChild(theadRow);
+
+                var thName = document.createElement('th');
+                thName.width = '150';
+                thName.appendChild(document.createTextNode("Name"));
+                theadRow.appendChild(thName);
+
+                var thHeight = document.createElement('th');
+                thHeight.width = '75';
+                thHeight.appendChild(document.createTextNode("Height"));
+                theadRow.appendChild(thHeight);
+
+                var thWeight = document.createElement('th');
+                thWeight.width = '75';
+                thWeight.appendChild(document.createTextNode("Weight"));
+                theadRow.appendChild(thWeight);
+
+                presData.forEach(function(d) {
+                    var tr = document.createElement('tr');
+                    tableBody.appendChild(tr);
+
+                    var tdName = document.createElement('td');
+                    tdName.width = '150';
+                    tdName.appendChild(document.createTextNode(d.Name));
+                    tr.appendChild(tdName);
+
+                    var tdHeight = document.createElement('td');
+                    tdHeight.width = '75';
+                    tdHeight.appendChild(document.createTextNode(d.Height));
+                    tr.appendChild(tdHeight);
+
+                    var tdWeight = document.createElement('td');
+                    tdWeight.width = '75';
+                    tdWeight.appendChild(document.createTextNode(d.Weight));
+                    tr.appendChild(tdWeight);
+                });
+
+                var tableDiv = document.getElementById("presidents");
+	
+                if (tableDiv.hasChildNodes()) {
+                    tableDiv.removeChild(tableDiv.childNodes[0]); 
+                    tableDiv.appendChild(table);
+                } else {
+                    tableDiv.appendChild(table);
+                }
+            }
+
+        </script>
+        <p>
+            Presidents Table Read from CSV
+        </p>
+
+        <div id="presidents"></div>
+
+        <h1>Part 2: President Lookup</h1>
+
+        <script type="text/javascript">
+
+            // Functions
+            function createPresidentInfoString(presNameInp) {
+
+                // Default string
+                var outputString = "President not found. Try again";
+
+                presData.forEach(function (pres) {
+
+                    if (pres.Name.toLowerCase() == presNameInp.toLowerCase()) {
+                        outputString = "President: " + pres.Name + " - Height: " + pres.Height +
+                            " and Weight: " + pres.Weight;
+                    }
+                });
+                
+                return(outputString);
+            }
+            
+            
+            function lookupPresidentInfo() {
+                // Get input object
+                var inpStrObj = document.getElementById("presidentInput");
+                // Extract the value from the object
+                var inpStr = inpStrObj.value;
+                
+                
+                var t = document.getElementById("presidentInfo");
+                t.innerHTML = createPresidentInfoString(inpStr)
+            }
+        </script>
+
+        <p>
+            Enter President name from above table.
+        <form onsubmit="return false">
+            <input id="presidentInput" type="text" size="20">
+            <input type="submit" id="presBtn" value="Lookup" onClick="lookupPresidentInfo();">
+        </form>
+        </p>
+
+        <div id="presidentInfo">
+            President height and weight to appear here.
+        </div>
+
+    <script type="text/javascript">
+        // From: https://www.codexworld.com/how-to/trigger-button-click-on-enter-key-press-javascript/
+        // And: https://stackoverflow.com/questions/19454310/stop-form-refreshing-page-on-submit
+        var input = document.getElementById("presidentInput");
+        input.addEventListener("keyup", function(event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                document.getElementById("presBtn").click();
+            }
+        });
+    </script>
+
+    </body>
+
+</html>

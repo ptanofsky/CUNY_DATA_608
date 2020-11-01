@@ -1,0 +1,135 @@
+<html>
+
+<!--
+
+	Assignment 05
+	Philip Tanofsky
+	DATA 608 CUNY Fall 2020
+-->
+
+
+<!--
+Create a function to reverse any word that you type in. This can be typed into either an input box or an alert box, and then print the result in a box or on the webpage.
+-->
+
+    <head>
+        <title>Assignment 5 - Beginner -  Philip Tanofsky</title>
+    </head>
+
+    <body>
+
+        <script type="text/javascript">
+
+            // Functions
+            function reverseString(inputString) {
+
+	           // Get input object
+	           //var inp_str_obj = document.getElementById("string_value");
+                // Extract the value from the object
+	           //var inp_str = inp_str_obj.value;
+                
+                
+	           // Define output string
+	           var outStr = "";
+
+	           // Get length of input string
+	           var strLen = inputString.length;
+
+	           // Loop through input in order to reverse the string
+	           var i = Number(strLen) - 1;
+	           // Loop through input string to reverse
+	           for (i; i >= 0; i--) {
+                   outStr += inputString[i];
+               }
+
+                return(outStr);
+            }
+            
+            function performReverseString() {
+                
+                // Get input object
+                var inpStrObj = document.getElementById("string_value");
+                // Extract the value from the object
+                var inpStr = inpStrObj.value;
+                
+                // Set the reverse value to object for display
+                var t = document.getElementById("stringReverseTarget");
+                t.innerHTML = "Input string: " + inpStr + "<br />Reversed string: " + reverseString(inpStr);
+            }
+
+        </script>
+
+        <h1>Part 1: Reverse String</h1>
+        
+        <p>
+        <form onsubmit="return false">
+            <input id="string_value" type="text" size="20">
+            <input type="submit" value="Reverse" onClick="performReverseString();">
+        </form>
+        </p>
+
+    <div id="stringReverseTarget">Reversed string to appear here.</div>
+
+    <script type="text/javascript">
+
+        function createTable(inputNumber) {
+	
+            // Create table
+            // From: https://stackoverflow.com/questions/14643617/create-table-using-javascript
+            var table = document.createElement('table');
+            table.border = '1';
+
+            var tableBody = document.createElement('tbody');
+            table.appendChild(tableBody);
+
+            var multiple = 1;
+
+            for (var i = 0; i < 5; i++) {
+                var tr = document.createElement('tr');
+                tableBody.appendChild(tr);
+
+                for (var j = 0; j < 4; j++) {
+                    var td = document.createElement('td');
+                    td.width = '75';
+                    td.appendChild(document.createTextNode(inputNumber * multiple));
+                    tr.appendChild(td);
+                    multiple++;
+                }
+            }
+            
+            return(table);
+        }
+        
+        
+        function generateMultipesTable() {
+            
+            // Get input object
+            var inpNumObj = document.getElementById("num_value");
+            // Extract the value from the object
+            var inpNum = Number(inpNumObj.value);
+            
+            var tableDiv = document.getElementById("tableOfMultiples");
+	
+            
+            if (tableDiv.hasChildNodes()) {
+                tableDiv.removeChild(tableDiv.childNodes[0]); 
+                tableDiv.appendChild(createTable(inpNum));
+            } else {
+                tableDiv.appendChild(createTable(inpNum));
+            }
+        }
+
+    </script>
+
+    <h1>Part 2: Table of Multiples</h1>
+    <p>
+    <form onsubmit="return false">
+        <input id="num_value" type="number" size="5">
+        <input type="submit" value="Generate Table" onClick="generateMultipesTable();">
+    </form>
+    </p>
+
+<div id="tableOfMultiples">Table of Multiples to appear here.</div>
+
+</body>
+</html>

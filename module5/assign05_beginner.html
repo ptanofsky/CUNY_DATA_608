@@ -1,0 +1,247 @@
+<html>
+
+<!--
+
+	Assignment 05
+	Philip Tanofsky
+	DATA 608 CUNY Fall 2020
+-->
+
+
+<!--
+Create a function to reverse any word that you type in. This can be typed into either an input box or an alert box, and then print the result in a box or on the webpage.
+-->
+
+<head><title>Assignment 5 - Philip Tanofsky</title></head>
+
+<body>
+
+<script type="text/javascript">
+
+// Functions
+function reverseString() {
+
+	// Get input object
+	var inp_str_obj = document.getElementById("string_value");
+	// Extract the value from the object
+	var inp_str = inp_str_obj.value;
+	// Define output string
+	var out_str = "";
+
+	// Get length of input string
+	var str_len = inp_str.length;
+
+	// Loop through input in order to reverse the string
+	var i = Number(str_len) - 1;
+	// Loop through input string to reverse
+	for (i; i >= 0; i--) {
+		out_str += inp_str[i];
+	}
+
+	// Set the reverse value to object for display
+	var t = document.getElementById("str_target");
+	t.innerHTML = out_str;
+}
+
+</script>
+
+
+<h1>Part 1: Reverse String</h1>
+
+<p>
+<form>
+    <input id="string_value" type="text" size="20">
+    <input type="button" value="Reverse" onClick="reverseString();">
+</form>
+</p>
+
+<div id="str_target"></div>
+
+<script type="text/javascript">
+
+function createTable() {
+	// Get input object
+	var inp_num_obj = document.getElementById("num_value");
+	// Extract the value from the object
+	var inp_num = Number(inp_num_obj.value);
+	
+	// Create table
+	// From: https://stackoverflow.com/questions/14643617/create-table-using-javascript
+ 	var table = document.createElement('table');
+  	table.border = '1';
+
+	var tableBody = document.createElement('tbody');
+	table.appendChild(tableBody);
+
+	var multiple = 1;
+
+	for (var i = 0; i < 5; i++) {
+		var tr = document.createElement('tr');
+		tableBody.appendChild(tr);
+
+		for (var j = 0; j < 4; j++) {
+			var td = document.createElement('td');
+			td.width = '75';
+			td.appendChild(document.createTextNode(inp_num * multiple));
+			tr.appendChild(td);
+
+			multiple++;
+		}
+	}
+
+	var tableDiv = document.getElementById("table_multiples");
+	
+	if (tableDiv.hasChildNodes()) {
+		tableDiv.removeChild(tableDiv.childNodes[0]); 
+		tableDiv.appendChild(table);
+	} else {
+		tableDiv.appendChild(table);
+	}
+}
+
+</script>
+
+<h1>Part 1: Tables of Multiples</h1>
+<p>
+<form>
+    <input id="num_value" type="number" size="5">
+    <input type="button" value="Generate Table" onClick="createTable();">
+</form>
+</p>
+
+<div id="table_multiples"></div>
+
+
+<h1>Part 2: Read CSV</h1>
+
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<script type="text/javascript">
+
+	// Help from: https://stackoverflow.com/questions/9491885/csv-to-array-in-d3-js
+	var presData;
+
+	d3.csv("https://raw.githubusercontent.com/ptanofsky/CUNY_DATA_608/master/module5/data/presidents.csv").then(function(data) {
+		
+		presData = data;
+
+		createTableOfPresidents();
+	});
+
+	function createTableOfPresidents() {
+
+ 		var table = document.createElement('table');
+  		table.border = '1';
+		var tableBody = document.createElement('tbody');
+		table.appendChild(tableBody)
+
+		var thead_row = document.createElement('tr');
+		tableBody.appendChild(thead_row);
+
+		var th_name = document.createElement('th');
+		th_name.width = '150';
+		th_name.appendChild(document.createTextNode("Name"));
+		thead_row.appendChild(th_name);
+
+		var th_ht = document.createElement('th');
+		th_ht.width = '75';
+		th_ht.appendChild(document.createTextNode("Height"));
+		thead_row.appendChild(th_ht);
+
+		var th_wt = document.createElement('th');
+		th_wt.width = '75';
+		th_wt.appendChild(document.createTextNode("Weight"));
+		thead_row.appendChild(th_wt);
+
+
+		presData.forEach(function(d) {
+			var tr = document.createElement('tr');
+			tableBody.appendChild(tr);
+
+			var td_name = document.createElement('td');
+			td_name.width = '150';
+			td_name.appendChild(document.createTextNode(d.Name));
+			tr.appendChild(td_name);
+
+			var td_ht = document.createElement('td');
+			td_ht.width = '75';
+			td_ht.appendChild(document.createTextNode(d.Height));
+			tr.appendChild(td_ht);
+
+			var td_wt = document.createElement('td');
+			td_wt.width = '75';
+			td_wt.appendChild(document.createTextNode(d.Weight));
+			tr.appendChild(td_wt);
+
+  		});
+
+
+		var tableDiv = document.getElementById("presidents");
+	
+		if (tableDiv.hasChildNodes()) {
+			tableDiv.removeChild(tableDiv.childNodes[0]); 
+			tableDiv.appendChild(table);
+		} else {
+			tableDiv.appendChild(table);
+		}
+
+	}
+
+</script>
+<p>
+Presidents Table Read from CSV
+<form>
+
+</form>
+</p>
+
+<div id="presidents"></div>
+
+<h1>Part 2: President Lookup</h1>
+
+<script type="text/javascript">
+
+// Functions
+function lookupPresidentInfo() {
+
+	// Get input object
+	var inp_str_obj = document.getElementById("president_input");
+	// Extract the value from the object
+	var inp_str = inp_str_obj.value;
+
+	var t = document.getElementById("pres_info");
+	t.innerHTML = "President not found. Try again";
+
+	presData.forEach(function (pres) {
+
+		if (pres.Name.toLowerCase() == inp_str.toLowerCase()) {
+			t.innerHTML = "President: " + pres.Name + " - Height: " + pres.Height +
+				" and Weight: " + pres.Weight;
+		}
+	});
+
+}
+</script>
+
+<p>
+<form>
+    <input id="president_input" type="text" size="20">
+    <input type="button" value="Lookup" onClick="lookupPresidentInfo();">
+</form>
+</p>
+
+<div id="pres_info"></div>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
