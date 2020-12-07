@@ -10,7 +10,7 @@ import folium
 import json
 import requests
 
-# Version XX: <Update of progress>
+# Version 15: All functionality working. Just code clean-up needed and comments/documentation.
 
 #-----------------------------------------------------------------
 # Description of app:
