@@ -10,7 +10,8 @@ import folium
 import json
 import requests
 
-# Version XX: <Update of progress>
+# Version 14: Fixed slider animation. All functionality working as expected as of 12:28p on 12/7/20
+# Next step: Add language to app and clean up code as necessary
 
 #-----------------------------------------------------------------
 # Description of app:

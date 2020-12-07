@@ -12,24 +12,31 @@ import requests
 
 # Version 12: Versioned everything before start of work on 12/6
 
-atx_zip_data = pd.read_csv('atxdata.csv')
+#-----------------------------------------------------------------
+# Description of app:
+#-----------------------------------------------------------------
+
+# Read in Austin data by Zip code
+atx_zip_data = pd.read_csv('https://raw.githubusercontent.com/ptanofsky/CUNY_DATA_608/master/FinalProject/dashapp/atxdata.csv')
 # Convert zip code to string
 atx_zip_data['Zip Code'] = atx_zip_data['Zip Code'].astype(str)
+
+
 # Replace all the dashes with 0
 #TODO Check if necessary
-atx_zip_data = atx_zip_data.replace('-','0')
+#atx_zip_data = atx_zip_data.replace('-','0')
 
 # Create list of statistics for dropdown
-#Remove zip code itself from the drop down
 dd_list_stats = list(atx_zip_data)
 #Remove zip code itself from the drop down
 dd_list_stats.remove('Zip Code')
 
-
-with open('atx_zips_coords_ordered.json') as f:
+# Load coordinates of the Austion Zip codes from GeoJSON file
+with open('https://raw.githubusercontent.com/ptanofsky/CUNY_DATA_608/master/FinalProject/dashapp/atx_zips_coords_ordered.json') as f:
     choro_geo_data = json.load(f)
 
-markers_data = pd.read_csv('markers.csv')
+# Read in file of locations based on category for Austin
+markers_data = pd.read_csv('https://raw.githubusercontent.com/ptanofsky/CUNY_DATA_608/master/FinalProject/dashapp/markers.csv')
 
 #TODO consider moving to the function; not global
 # Color dictionary for bivariate choropleth
@@ -93,19 +100,22 @@ decade_2010_variables_dict = {
     "Education - Bachelor degree or higher": "B16010_041E"
 }
 
+# Create list of statistics for the Austin decade dropdown
 dd_decade = list(decade_2010_variables_dict.keys())
 
+# Create list of categories for the checklist
 markers_options = markers_dict.values()
 
+# List of years under consideration for Austin decade visual
 years = [2011,2012,2013,2014,2015,2016,2017,2018]
 
+#-----------------------------------------------------------------
 # Function definitions
-
+#-----------------------------------------------------------------
 def retrieve_values_for_zip_codes(year, statistic):
 
     key = '09c5dae3e5eb30a5dbff1bce8d228b1c6c204d6b'
     statistic = decade_2010_variables_dict.get(statistic)
-    #'B01003_001E' # Currently hard-coded to total population
     url = 'https://api.census.gov/data/' + str(year) + '/acs/acs5?get=NAME,' + statistic + '&for=zip%20code%20tabulation%20area:*&key=' + key
 
     myResponse = requests.get(url)
@@ -175,7 +185,6 @@ def build_atx_map_for_single_attribute(year, statistic, markers):
     ).add_to(m)
 
     # Add Markers based on the markers list
-
     if markers != None:
 
         if markers_dict.get('GolfCourse') in markers:
@@ -225,10 +234,10 @@ def build_atx_map_for_single_attribute(year, statistic, markers):
                 ).add_to(m)
 
     # Remember to add layer control
-#    folium.LayerControl().add_to(m)
+    # Purposely removing this layer control as not to confuse use of controls
+    # folium.LayerControl().add_to(m)
 
     # Display Region Label
-    #    choropleth.geojson.add_child(
     choropleth.geojson.add_child(
         folium.features.GeoJsonTooltip(fields=['tooltip1'], labels=False)
     )
@@ -250,12 +259,12 @@ def determine_bivariate_choropleth_color(zipcode, stat1, stat2):
     # Define percentile for dividing by 3 (33.33)
     pct = 100 / 3
 
-    # Create the breakpoints for the two columns, land and building
+    # Create the breakpoints for the two columns
     bp_s1 = np.percentile(atx_zip_data[stat1], [pct, 100 - pct], axis=0)
 
     bp_s2 = np.percentile(atx_zip_data[stat2], [pct, 100 - pct], axis=0)
 
-    # Bin the land assessments
+    # Bin the statistic one
     stat1_val = atx_zip_data.loc[atx_zip_data['Zip Code'] == zipcode, stat1].iloc[0]
     if stat1_val > 0 and stat1_val < bp_s1[0]:
         stat1_label = labels_s1[0]
@@ -264,7 +273,7 @@ def determine_bivariate_choropleth_color(zipcode, stat1, stat2):
     else:
         stat1_label = labels_s1[2]
 
-    # Bin the building assessments
+    # Bin the statistic two
     stat2_val = atx_zip_data.loc[atx_zip_data['Zip Code'] == zipcode, stat2].iloc[0]
     if stat2_val > 0 and stat2_val < bp_s2[0]:
         stat2_label = labels_s2[0]
@@ -273,7 +282,7 @@ def determine_bivariate_choropleth_color(zipcode, stat1, stat2):
     else:
         stat2_label = labels_s2[2]
 
-    # Concatenate the land and building labels
+    # Concatenate the statistic labels
     color = stat1_label + stat2_label
 
     return color_key[color]
@@ -298,8 +307,6 @@ def build_atx_map(inp1, inp2, markers):
         tooltip_text.append('<b>Zip code:</b> ' + atx_zip_data['Zip Code'][idx] +
                             '<br>' + inp1 + ': ' + str(atx_zip_data[inp1][idx]) +
                             '<br>' + inp2 + ': ' + str(atx_zip_data[inp2][idx]))
-
-    #tooltip_text
 
     # Append a tooltip column with customized text
     for idx in range(len(tooltip_text)):
@@ -375,6 +382,7 @@ def build_atx_map(inp1, inp2, markers):
                 ).add_to(m)
 
     # Remember to add layer control
+    # Again, purposely not adding layer control to not confuse user
     #folium.LayerControl().add_to(m)
 
     # Display zip code Label
@@ -392,6 +400,7 @@ def build_atx_map(inp1, inp2, markers):
 
 #-----------------------------------------------------------------------------------------------------------------------
 # App layout
+#-----------------------------------------------------------------------------------------------------------------------
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets, suppress_callback_exceptions=True)
 
@@ -422,7 +431,9 @@ for idx in range(len(dd_list_stats)):
 
     small_multiple_choropleths.append(sm_ch_fig)
 
+#--------------------------------------------------
 # Tab1
+#--------------------------------------------------
 tab1 = html.Div([
     html.Div([
         # Dropdown 1
@@ -633,7 +644,9 @@ tab1 = html.Div([
 ])
 
 
+#--------------------------------------------------
 # Tab2
+#--------------------------------------------------
 tab2 = html.Div([
     html.H1('Tab 2 here'),
     html.Div([
@@ -679,6 +692,9 @@ tab2 = html.Div([
     ]),
 ])
 
+#--------------------------------------------------
+# App Layout
+#--------------------------------------------------
 app.layout = html.Div([
     html.H1(children='Final Project'),
     html.H3(children='Author: Philip Tanofsky'),
@@ -694,7 +710,9 @@ app.layout = html.Div([
              children=tab1)
 ])
 
-
+#--------------------------------------------------
+# App callbacks
+#--------------------------------------------------
 @app.callback(Output('tabs-content-example', 'children'),
              Input('tabs-example', 'value'))
 def render_content(tab):
@@ -715,6 +733,7 @@ def update_map_of_zip_codes(stat_01, stat_02, markers):
     fig1 = px.scatter(atx_zip_data, x=stat_01, y=stat_02)
     return build_atx_map(stat_01, stat_02, markers), fig1
 
+
 @app.callback(
     Output('map2', 'srcDoc'),
     Input('year-slider', 'value'),
@@ -723,6 +742,7 @@ def update_map_of_zip_codes(stat_01, stat_02, markers):
 )
 def update_map_of_zip_codes_single_attribute(year, stat_01, markers):
     return build_atx_map_for_single_attribute(year, stat_01, markers)
+
 
 @app.callback(
     Output('year-slider', 'value'),
@@ -734,6 +754,7 @@ def on_click(n_intervals):
     else:
         index = (n_intervals + 1) % len(years)
     return years[index]
+
 
 @app.callback(
     Output('auto-stepper', 'disabled'),

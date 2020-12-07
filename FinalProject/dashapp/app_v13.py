@@ -1,7 +1,7 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
@@ -10,7 +10,7 @@ import folium
 import json
 import requests
 
-# Version XX: <Update of progress>
+# Version 13: Fixed bivariate map defect. Start of work on Monday, Dec. 7
 
 #-----------------------------------------------------------------
 # Description of app:
@@ -33,6 +33,7 @@ choro_geo_data = json.loads(content.content)
 # Read in file of locations based on category for Austin
 markers_data = pd.read_csv('https://raw.githubusercontent.com/ptanofsky/CUNY_DATA_608/master/FinalProject/dashapp/markers.csv')
 
+#TODO consider moving to the function; not global
 # Color dictionary for bivariate choropleth
 color_key = {'C3':'#3b4994',
              'B3':'#8c62aa',
@@ -102,6 +103,8 @@ markers_options = markers_dict.values()
 
 # List of years under consideration for Austin decade visual
 years = [2011,2012,2013,2014,2015,2016,2017,2018]
+
+year_slider_value = max(years)
 
 #-----------------------------------------------------------------
 # Function definitions
@@ -667,18 +670,16 @@ tab2 = html.Div([
         dcc.Interval(id='auto-stepper',
                      interval=8 * 1000, # in milliseconds
                      n_intervals=0,
-                     disabled=True
+                     disabled=False
         ),
         dcc.Slider(
             id='year-slider',
             min=min(years),
             max=max(years),
-            value=min(years),
+            value=year_slider_value,
             marks={str(year): str(year) for year in list(set(years))},
             step=None
         ),
-        # Hidden div inside the app that stores the year value for slider
-        html.Div(id='year-slider-value', style={'display': 'none'})
     ]),
     html.Div([
         html.P("Select categories to see locations on map:"),
@@ -748,25 +749,25 @@ def update_map_of_zip_codes(stat_01, stat_02, markers):
     Input('markers', 'value')
 )
 def update_map_of_zip_codes_single_attribute(year, stat_01, markers):
+    year_slider_value = int(year)
     return build_atx_map_for_single_attribute(year, stat_01, markers)
 
 
 @app.callback(
     Output('year-slider', 'value'),
-    Input('auto-stepper', 'n_intervals'),
-    State('year-slider-value', 'value'),
+    Input('auto-stepper', 'n_intervals')
 )
-def on_click(n_intervals, year_slider_value):
-    # Getting intervals, but need to translate to the year_slider_value
-    selected_year = year_slider_value
+def on_click(n_intervals):
 
-    # On load, n_intervals is 0, so start with first year
-    if n_intervals == 0:
-        index = 0
-    elif n_intervals > 0:
-        # Increment years index by current year value in hidden div
-        index_offset = years.index(selected_year)
-        index = (index_offset + 1) % len(years)
+    # Getting intervals, but need to translate to the year_slider_value
+#    selected_year = year_slider_value
+#    index_offset = years.index(selected_year) + 1
+
+    if n_intervals is None:
+        return years[0]
+    else:
+        index = (n_intervals + 1) % len(years)
+ #       year_slider_value = years[index]
     return years[index]
 
 
@@ -818,13 +819,6 @@ def hide_show_scatterplot(show_btn, hide_btn):
         scat_show_disabled = False
         scat_hide_disabled = True
     return scat_plot_hidden, scat_show_disabled, scat_hide_disabled
-
-
-@app.callback(Output('year-slider-value', 'value'),
-              Input('year-slider', 'value'),)
-def update_year_slider_value(year_value):
-     return year_value
-
 
 if __name__ == '__main__':
     app.run_server(debug=True)
