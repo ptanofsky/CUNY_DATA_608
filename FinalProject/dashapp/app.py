@@ -10,10 +10,22 @@ import folium
 import json
 import requests
 
-# Version XX: <Update of progress>
+# Version 16: Final
 
 #-----------------------------------------------------------------
-# Description of app:
+# Description of app: Plotly Dash App to visualize socioeconomic differences in Austin, Texas. Tab 1 contains
+# a bivariate choropleth map to compare two census statistics regarding the make-up of Austinites by zip code.
+# The map provides the option for markers to display public resources along with locations for police involved
+# shootings overlayed on the bivariate map.
+# The tab also contains a scatterplot of the two statistics along with a small multiples view of the same statistics
+# for additional visual comparison.
+# Tab 2 contains a univariate choropleth map of Austin by zip code that retrieves data by API from the census.
+# Tab 2 also contains a slider by year (2011-18) to present the change of the statistics over the course of the decade.
+# The same markers by category from tab 1 are also available on the tab 2 map.
+#
+# To run locally:
+# comamand: python app.py
+# URL: localhost:8050
 #-----------------------------------------------------------------
 
 # Read in Austin data by Zip code
@@ -26,7 +38,7 @@ dd_list_stats = list(atx_zip_data)
 #Remove zip code itself from the drop down
 dd_list_stats.remove('Zip Code')
 
-# Load coordinates of the Austion Zip codes from GeoJSON file
+# Load coordinates of the Austin Zip codes from GeoJSON file
 content = requests.get('https://raw.githubusercontent.com/ptanofsky/CUNY_DATA_608/master/FinalProject/dashapp/atx_zips_coords_ordered.json')
 choro_geo_data = json.loads(content.content)
 
@@ -743,7 +755,7 @@ app.layout = html.Div([
     html.H1(children='Final Project'),
     html.H3(children='Author: Philip Tanofsky'),
     html.H5(children='DATA 608, Fall 2020'),
-    html.H5(children='November 27, 2020'),
+    html.H5(children='December 9, 2020'),
     html.P("Goal: Focus on inequality and concentration of public resources in Travis County, the county that contains the Texas capital of Austin. Like many growing urban cities across the United States, such as New York City, Boston, San Francisco and Seattle, Austin is booming, but for whom? Typically, when a city is booming, the growth and resources are concentrated on those citizens that already have wealth and access to resources. This visualization provides a view of the socio-economic make-up and access to public resources in Austin."),
 
     # From: https://stackoverflow.com/questions/58897646/issues-with-assigning-callback-to-component-in-multi-tab-dash-application
