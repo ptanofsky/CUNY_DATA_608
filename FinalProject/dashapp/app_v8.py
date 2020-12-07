@@ -9,6 +9,7 @@ import folium
 import json
 import requests
 
+# Version 8: Fixd tooltips on bivariate map
 
 atx_zip_data = pd.read_csv('atxdata.csv')
 # Convert zip code to string

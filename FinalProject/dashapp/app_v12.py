@@ -3,13 +3,14 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 import plotly.express as px
+import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
 import folium
 import json
 import requests
 
-# Version 7: Fixed the checklist display names
+# Version 12: Versioned everything before start of work on 12/6
 
 atx_zip_data = pd.read_csv('atxdata.csv')
 # Convert zip code to string
@@ -58,17 +59,52 @@ markers_dict = {
     "Shooting": "Officer Involved Shootings (2008-17)"
 }
 
+decade_2010_variables_dict = {
+    "Total population": "B01003_001E",
+    "Sex - Female": "B01001_026E",
+    "Sex - Male":   "B01001_002E",
+    "Income - Less than $10,000": "B19001_002E",
+    "Income - $10,000 to $14,999": "B19001_003E",
+    "Income - $15,000 to $19,999": "B19001_004E",
+    "Income - $20,000 to $24,999": "B19001_005E",
+    "Income - $25,000 to $29,999": "B19001_006E",
+    "Income - $30,000 to $34,999": "B19001_007E",
+    "Income - $35,000 to $39,999": "B19001_008E",
+    "Income - $40,000 to $44,999": "B19001_009E",
+    "Income - $45,000 to $49,999": "B19001_010E",
+    "Income - $50,000 to $59,999": "B19001_011E",
+    "Income - $60,000 to $74,999": "B19001_012E",
+    "Income - $75,000 to $99,999": "B19001_013E",
+    "Income - $100,000 to $124,999": "B19001_014E",
+    "Income - $125,000 to $149,999": "B19001_015E",
+    "Income - $150,000 to $199,999": "B19001_016E",
+    "Income - $200,000 or more": "B19001_017E",
+    "Income - Below poverty level": "B17001_002E",
+    "Race - Hispanic or Latino": "B03002_001E",
+    "Race - White": "B03002_003E",
+    "Race - Black or African American": "B03002_004E",
+    "Race - American Indian and Alaska Native": "B03002_005E",
+    "Race - Asian": "B03002_006E",
+    "Race - Native Hawaiian and Other Pacific Islander": "B03002_007E",
+    "Race - Two or more races": "B02001_008E",
+    "Education - Less than high school graduate": "B16010_002E",
+    "Education - High school graduate (includes equivalency)": "B16010_015E",
+    "Education - Some college or associate degree": "B16010_028E",
+    "Education - Bachelor degree or higher": "B16010_041E"
+}
+
+dd_decade = list(decade_2010_variables_dict.keys())
+
 markers_options = markers_dict.values()
 
 years = [2011,2012,2013,2014,2015,2016,2017,2018]
 
-census_attr_key = {'Total population':'B01003_001E',
-                   'White alone':'B02001_002E'}
+# Function definitions
 
 def retrieve_values_for_zip_codes(year, statistic):
 
     key = '09c5dae3e5eb30a5dbff1bce8d228b1c6c204d6b'
-    statistic = census_attr_key.get(statistic)
+    statistic = decade_2010_variables_dict.get(statistic)
     #'B01003_001E' # Currently hard-coded to total population
     url = 'https://api.census.gov/data/' + str(year) + '/acs/acs5?get=NAME,' + statistic + '&for=zip%20code%20tabulation%20area:*&key=' + key
 
@@ -132,8 +168,8 @@ def build_atx_map_for_single_attribute(year, statistic, markers):
         data=year_stat_df,
         columns=['Zip Code', 'Attr Value'],
         key_on='feature.properties.ZCTA5CE10',
-        fill_color='YlGn',
-        fill_opacity=0.7,
+        fill_color='PuBuGn',
+        fill_opacity=0.8,
         line_opacity=0.2,
         legend_name=statistic
     ).add_to(m)
@@ -259,8 +295,11 @@ def build_atx_map(inp1, inp2, markers):
     # prepare the customized text for the tooltip
     tooltip_text = []
     for idx in range(len(atx_zip_data)):
-        tooltip_text.append(atx_zip_data['Zip Code'][idx]+' '+ str(atx_zip_data[inp1][idx]))
-    tooltip_text
+        tooltip_text.append('<b>Zip code:</b> ' + atx_zip_data['Zip Code'][idx] +
+                            '<br>' + inp1 + ': ' + str(atx_zip_data[inp1][idx]) +
+                            '<br>' + inp2 + ': ' + str(atx_zip_data[inp2][idx]))
+
+    #tooltip_text
 
     # Append a tooltip column with customized text
     for idx in range(len(tooltip_text)):
@@ -268,13 +307,13 @@ def build_atx_map(inp1, inp2, markers):
     geo_data = map_data
 
     # Create a folium map object
-    # ATX coordinates: 30.2672° N, 97.7431° W
+    # ATX coordinates: 30.2672, -97.7431
     m = folium.Map(
             location=[30.2672, -97.7431],
             tiles='Stamen Toner',
             zoom_start=10)
-    # Now to render the zip codes on the map with just GeoJson
 
+    # Now to render the zip codes on the map with just GeoJson
     choropleth = folium.GeoJson(
         geo_data,
         name='ATX Bivariate Choropleth',
@@ -287,9 +326,7 @@ def build_atx_map(inp1, inp2, markers):
         }
     ).add_to(m)
 
-
     # Add Markers based on the markers list
-
     if markers != None:
         if markers_dict.get('GolfCourse') in markers:
             golf_markers = markers_data.loc[markers_data['Category'] == 'GolfCourse']
@@ -338,10 +375,9 @@ def build_atx_map(inp1, inp2, markers):
                 ).add_to(m)
 
     # Remember to add layer control
- #   folium.LayerControl().add_to(m)
+    #folium.LayerControl().add_to(m)
 
-    # Display Region Label
-#    choropleth.geojson.add_child(
+    # Display zip code Label
     choropleth.add_child(
         folium.features.GeoJsonTooltip(fields=['tooltip1'], labels=False)
     )
@@ -353,44 +389,40 @@ def build_atx_map(inp1, inp2, markers):
     source_code = srcDoc.read()
 
     return source_code
-    #-------------------------------------------------------
-    # Build map of Austin Texas with folium module - END
-    #-------------------------------------------------------
 
-
-
-
-
+#-----------------------------------------------------------------------------------------------------------------------
 # App layout
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets, suppress_callback_exceptions=True)
 
-fig1 = px.choropleth(
-    atx_zip_data, geojson=choro_geo_data, color='Total population',
-    color_continuous_scale="Viridis",
-    locations="Zip Code", featureidkey="properties.ZCTA5CE10",
-    projection="mercator", range_color=[atx_zip_data['Total population'].min(), atx_zip_data['Total population'].max()])
-fig1.update_geos(fitbounds="locations", visible=False)
-fig1.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+small_multiple_choropleths = []
 
-fig2 = px.choropleth(
-    atx_zip_data, geojson=choro_geo_data, color='Age - Under 18 years',
-    color_continuous_scale="Viridis",
-    locations="Zip Code", featureidkey="properties.ZCTA5CE10",
-    projection="mercator", range_color=[atx_zip_data['Age - Under 18 years'].min(), atx_zip_data['Age - Under 18 years'].max()])
-fig2.update_geos(fitbounds="locations", visible=False)
-fig2.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
-
-fig3 = px.choropleth(
-    atx_zip_data, geojson=choro_geo_data, color='Age - 18 years and over',
-    color_continuous_scale="Viridis",
-    locations="Zip Code", featureidkey="properties.ZCTA5CE10",
-    projection="mercator", range_color=[atx_zip_data['Age - 18 years and over'].min(), atx_zip_data['Age - 18 years and over'].max()])
-fig3.update_geos(fitbounds="locations", visible=False)
-fig3.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+# Remove the legend labels to line up all the graphs
+# list of keys
+keys = dd_list_stats
+values = [''] * len(dd_list_stats)
+labels_dict = dict(zip(keys, values))
 
 
-# Tabl
+for idx in range(len(dd_list_stats)):
+
+    range_color_low = atx_zip_data[dd_list_stats[idx]].min()
+    range_color_high = atx_zip_data[dd_list_stats[idx]].max()
+
+    sm_ch_fig = px.choropleth(
+        atx_zip_data, geojson=choro_geo_data, color=dd_list_stats[idx],
+        color_continuous_scale="dense",
+        locations="Zip Code", featureidkey="properties.ZCTA5CE10",
+        projection="mercator",
+        range_color=[range_color_low, range_color_high],
+        labels = labels_dict
+    )
+    sm_ch_fig.update_geos(fitbounds="locations", visible=False)
+    sm_ch_fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+
+    small_multiple_choropleths.append(sm_ch_fig)
+
+# Tab1
 tab1 = html.Div([
     html.Div([
         # Dropdown 1
@@ -429,47 +461,175 @@ tab1 = html.Div([
             labelStyle={'display': 'inline-block'}
         ),
     ]),
+
     # Bivariate choropleth matp
     html.Div([
         html.Iframe(id='map', width='100%', height='600')
-    ], style={'width': '98%', 'display': 'inline-block', 'padding': '0 20'}),
-    # Div for small multiples of the chorpleths
+    ], style={'width': '98%', 'display': 'inline-block'}),
+
+    # Scatterplot
     html.Div([
         html.Div([
-            dcc.Graph(
-                id="choropleth-total-pop",
-                figure=fig1
-            )
-        ], style={'width': '23%', 'display': 'inline-block', 'padding': '0 20'}),
-        html.Div([
-            dcc.Graph(
-                id="choropleth-age-01",
-                figure=fig2
-            )
-        ], style={'width': '23%', 'display': 'inline-block', 'padding': '0 20'}),
-        html.Div([
-            dcc.Graph(
-                id="choropleth-age-02",
-                figure=fig3
-            )
-        ], style={'width': '23%', 'display': 'inline-block', 'padding': '0 20'})
-    ], style={'width': '98%', 'height': '350px', 'display': 'inline-block', 'padding': '0 20'}),
-    # Scatterplot and some other random graph
-    #TODO do something about these two graphs  (delete or fix!!)
-    html.Div([
+            html.Button('Show Scatterplot', id='scat_show', disabled=True),
+            html.Button('Hide Scatterplot', id='scat_hide', disabled=False)
+        ]),
         html.Div([
             dcc.Graph(
                 id='stat-1-graph'
             )
-        ], style={'width': '49%', 'display': 'inline-block', 'padding': '0 20'})
-    ]),
+        ], style={'display': 'inline-block'}, id='scat_plot')
+    ], style={'width': '85%'}),
+
+    # Div for small multiples of the chorpleths
     html.Div([
-        html.Div([
-            dcc.Graph(
-                id='stat-2-graph'
-            )
-        ], style={'width': '90%', 'display': 'inline-block', 'padding': '0 20'})
-    ])
+        html.Table([
+            html.Tbody([
+                html.Tr([
+                    html.Td([
+                        html.P(dd_list_stats[0]),
+                        dcc.Graph(
+                            figure=small_multiple_choropleths[0]
+                        )
+                    ],
+                    style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                           'border': 'none'}),
+                    html.Td([
+                        html.P(dd_list_stats[3]),
+                        dcc.Graph(
+                            figure=small_multiple_choropleths[3]
+                        )
+                    ],
+                    style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                           'border': 'none'}),
+                    html.Td([
+                        html.P(dd_list_stats[4]),
+                        dcc.Graph(
+                            figure=small_multiple_choropleths[4]
+                        )
+                    ],
+                    style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                           'border': 'none'}),
+
+                ],
+                style={'width': '100%', 'display': 'inline-block'}),
+                html.Tr([
+                    html.Td([
+                        html.P(dd_list_stats[5]),
+                        dcc.Graph(
+                            figure=small_multiple_choropleths[5]
+                        )
+                    ],
+                    style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                           'border': 'none'}),
+                    html.Td([
+                        html.P(dd_list_stats[7]),
+                        dcc.Graph(
+                            figure=small_multiple_choropleths[7]
+                        )
+                    ],
+                    style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                           'border': 'none'}),
+                    html.Td([
+                        html.P(dd_list_stats[9]),
+                        dcc.Graph(
+                            figure=small_multiple_choropleths[9]
+                        )
+                    ],
+                    style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                           'border': 'none'}),
+
+                ],
+                style={'width': '100%', 'display': 'inline-block'}),
+                html.Tr([
+                    html.Td([
+                        html.P(dd_list_stats[10]),
+                        dcc.Graph(
+                            figure=small_multiple_choropleths[10]
+                        )
+                    ],
+                    style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                           'border': 'none'}),
+                    html.Td([
+                        html.P(dd_list_stats[11]),
+                        dcc.Graph(
+                            figure=small_multiple_choropleths[11]
+                        )
+                    ],
+                    style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                           'border': 'none'}),
+                    html.Td([
+                        html.P(dd_list_stats[12]),
+                        dcc.Graph(
+                            figure=small_multiple_choropleths[12]
+                        )
+                    ],
+                    style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                           'border': 'none'}),
+
+                ],
+                style={'width': '100%', 'display': 'inline-block'}),
+                html.Tr([
+                    html.Td([
+                        html.P(dd_list_stats[13]),
+                        dcc.Graph(
+                            figure=small_multiple_choropleths[13]
+                        )
+                    ],
+                    style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                           'border': 'none'}),
+                    html.Td([
+                        html.P(dd_list_stats[14]),
+                        dcc.Graph(
+                            figure=small_multiple_choropleths[14]
+                        )
+                    ],
+                    style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                           'border': 'none'}),
+                    html.Td([
+                        html.P(dd_list_stats[15]),
+                        dcc.Graph(
+                            figure=small_multiple_choropleths[15]
+                        )
+                    ],
+                    style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                           'border': 'none'}),
+
+                ],
+                style={'width': '100%', 'display': 'inline-block'}),
+                html.Tr([
+                    html.Td([
+                        html.P(dd_list_stats[23]),
+                        dcc.Graph(
+                            figure=small_multiple_choropleths[23]
+                        )
+                    ],
+                    style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                           'border': 'none'}),
+                    html.Td([
+                        html.P(dd_list_stats[24]),
+                        dcc.Graph(
+                            figure=small_multiple_choropleths[24]
+                        )
+                    ],
+                    style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                           'border': 'none'}),
+                    html.Td([
+                        html.P(dd_list_stats[25]),
+                        dcc.Graph(
+                            figure=small_multiple_choropleths[25]
+                        )
+                    ],
+                    style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                           'border': 'none'}),
+
+                ],
+                style={'width': '100%', 'display': 'inline-block'}),
+            ],
+            style={'width': '100%', 'display': 'inline-block'}),
+        ],
+        style={'width': '100%', 'display': 'inline-block', 'padding': '100px'}),
+    ],
+    style={'width': '100%', 'display': 'inline-block', 'align': 'center'}),
 ])
 
 
@@ -480,20 +640,29 @@ tab2 = html.Div([
         html.H6(children='Select a Statistic'),
         dcc.Dropdown(
             id='tab-2-selection-dd',
-            options=[{'label': i, 'value': i} for i in dd_list_stats],
+            options=[{'label': i, 'value': i} for i in dd_decade],
             value='Total population',
             clearable=False
         )
     ],
     style={'width': '49%', 'display': 'inline-block'}),
-    dcc.Slider(
-        id='year-slider',
-        min=min(years),
-        max=max(years),
-        value=max(years),
-        marks={str(year): str(year) for year in list(set(years))},
-        step=None
-    ),
+    html.Div([
+        html.Button('Play Animation', id='animation-play-btn', disabled=False),
+        html.Button('Pause Animation', id='animation-pause-btn', disabled=True),
+        dcc.Interval(id='auto-stepper',
+                     interval=8 * 1000, # in milliseconds
+                     n_intervals=0,
+                     disabled=False
+        ),
+        dcc.Slider(
+            id='year-slider',
+            min=min(years),
+            max=max(years),
+            value=max(years),
+            marks={str(year): str(year) for year in list(set(years))},
+            step=None
+        ),
+    ]),
     html.Div([
         html.P("Markers Selection:"),
         dcc.Checklist(
@@ -504,10 +673,10 @@ tab2 = html.Div([
             labelStyle={'display': 'inline-block'}
         ),
     ]),
-    # Single variate choropleth matp
+    # Single variate choropleth map
     html.Div([
         html.Iframe(id='map2', width='100%', height='600')
-    ])
+    ]),
 ])
 
 app.layout = html.Div([
@@ -517,7 +686,6 @@ app.layout = html.Div([
     html.H5(children='November 27, 2020'),
 
     # Help from: https://stackoverflow.com/questions/58897646/issues-with-assigning-callback-to-component-in-multi-tab-dash-application
-
     dcc.Tabs(id="tabs-example", value='tab-1-value', children=[
         dcc.Tab(id="tab-1", label='Austin: Bivariate Choropleth', value='tab-1-value'),
         dcc.Tab(id="tab-2", label='Austin: 2010s', value='tab-2-value'),
@@ -539,18 +707,13 @@ def render_content(tab):
 @app.callback(
     Output('map', 'srcDoc'),
     Output('stat-1-graph', 'figure'),
-    Output('stat-2-graph', 'figure'),
     Input('stat-1-selection-dd', 'value'),
     Input('stat-2-selection-dd', 'value'),
     Input('markers-tab1', 'value')
 )
 def update_map_of_zip_codes(stat_01, stat_02, markers):
- #   zip_data = atx_zip_data.sort_values(stat_01, ascending=False)
     fig1 = px.scatter(atx_zip_data, x=stat_01, y=stat_02)
-  #  fig1.update_layout(barmode='stack', xaxis={'categoryorder':'total descending'})
-    fig2 = px.bar(atx_zip_data, x=atx_zip_data['Zip Code'], y=atx_zip_data[stat_02])
-
-    return build_atx_map(stat_01, stat_02, markers), fig1, fig2
+    return build_atx_map(stat_01, stat_02, markers), fig1
 
 @app.callback(
     Output('map2', 'srcDoc'),
@@ -561,7 +724,65 @@ def update_map_of_zip_codes(stat_01, stat_02, markers):
 def update_map_of_zip_codes_single_attribute(year, stat_01, markers):
     return build_atx_map_for_single_attribute(year, stat_01, markers)
 
+@app.callback(
+    Output('year-slider', 'value'),
+    Input('auto-stepper', 'n_intervals')
+)
+def on_click(n_intervals):
+    if n_intervals is None:
+        return years[0]
+    else:
+        index = (n_intervals + 1) % len(years)
+    return years[index]
 
+@app.callback(
+    Output('auto-stepper', 'disabled'),
+    Output('animation-play-btn', 'disabled'),
+    Output('animation-pause-btn', 'disabled'),
+    Input('animation-play-btn', 'n_clicks'),
+    Input('animation-pause-btn', 'n_clicks'),
+)
+def play_pause_slider(play_btn, pause_btn):
+    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+
+    set_slider_disabled = False
+    set_play_button_disabled = False
+    set_pause_button_disabled = False
+
+    if 'animation-play-btn' in changed_id:
+        set_slider_disabled = False
+        set_play_button_disabled = True
+        set_pause_button_disabled = False
+    elif 'animation-pause-btn' in changed_id:
+        set_slider_disabled = True
+        set_play_button_disabled = False
+        set_pause_button_disabled = True
+    return set_slider_disabled, set_play_button_disabled, set_pause_button_disabled
+
+
+@app.callback(
+    Output('scat_plot', component_property='style'),
+    Output('scat_show', 'disabled'),
+    Output('scat_hide', 'disabled'),
+    Input('scat_show', 'n_clicks'),
+    Input('scat_hide', 'n_clicks'),
+)
+def hide_show_scatterplot(show_btn, hide_btn):
+    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+
+    scat_plot_hidden = {'display':'inline-block'}
+    scat_show_disabled = False
+    scat_hide_disabled = False
+
+    if 'scat_show' in changed_id:
+        scat_plot_hidden = {'display': 'inline-block'}
+        scat_show_disabled = True
+        scat_hide_disabled = False
+    elif 'scat_hide' in changed_id:
+        scat_plot_hidden = {'display':'none'}
+        scat_show_disabled = False
+        scat_hide_disabled = True
+    return scat_plot_hidden, scat_show_disabled, scat_hide_disabled
 
 if __name__ == '__main__':
     app.run_server(debug=True)

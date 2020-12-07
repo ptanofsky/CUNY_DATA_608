@@ -7,6 +7,7 @@ import numpy as np
 import folium
 import json
 
+# Version 4: Added tabs, no errors in console
 
 atx_zip_data = pd.read_csv('atxdata.csv')
 # Convert zip code to string

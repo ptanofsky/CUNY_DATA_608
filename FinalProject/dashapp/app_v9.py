@@ -9,7 +9,7 @@ import folium
 import json
 import requests
 
-# Version 6: Markers working on Tab 2, will moving over to tab 1
+# Version 9: Working app, prior to start of work on 12/5
 
 atx_zip_data = pd.read_csv('atxdata.csv')
 # Convert zip code to string
@@ -30,8 +30,6 @@ with open('atx_zips_coords_ordered.json') as f:
 
 markers_data = pd.read_csv('markers.csv')
 
-markers_options = markers_data.Category.unique()
-
 #TODO consider moving to the function; not global
 # Color dictionary for bivariate choropleth
 color_key = {'C3':'#3b4994',
@@ -45,7 +43,22 @@ color_key = {'C3':'#3b4994',
              'A1':'#e8e8e8'}
 
 # All the Austin Zip codes under consideration
-atx_zip_codes = ['78610', '78617', '78653', '78660', '78701', '78702', '78703', '78704', '78705', '78721', '78722', '78723', '78724', '78725', '78726', '78727', '78728', '78729', '78730', '78731', '78732', '78733', '78734', '78735', '78736', '78737', '78738', '78739', '78741', '78742', '78744', '78745', '78746', '78747', '78748', '78749', '78750', '78751', '78752', '78753', '78754', '78756', '78757', '78758', '78759']
+atx_zip_codes = ['78610', '78617', '78653', '78660', '78701', '78702', '78703', '78704',
+                 '78705', '78721', '78722', '78723', '78724', '78725', '78726', '78727',
+                 '78728', '78729', '78730', '78731', '78732', '78733', '78734', '78735',
+                 '78736', '78737', '78738', '78739', '78741', '78742', '78744', '78745',
+                 '78746', '78747', '78748', '78749', '78750', '78751', '78752', '78753',
+                 '78754', '78756', '78757', '78758', '78759']
+
+markers_dict = {
+    "GolfCourse": "Public Golf Courses",
+    "ComputerLab": "Public Computer Labs",
+    "ElecCarCharging": "Electric Car Charging Stations",
+    "AffordableHousing": "Affordable Housing Listings",
+    "Shooting": "Officer Involved Shootings (2008-17)"
+}
+
+markers_options = markers_dict.values()
 
 years = [2011,2012,2013,2014,2015,2016,2017,2018]
 
@@ -128,7 +141,8 @@ def build_atx_map_for_single_attribute(year, statistic, markers):
     # Add Markers based on the markers list
 
     if markers != None:
-        if 'GolfCourse' in markers:
+
+        if markers_dict.get('GolfCourse') in markers:
             golf_markers = markers_data.loc[markers_data['Category'] == 'GolfCourse']
             golf_markers.reset_index(drop=True, inplace=True)
             for idx in range(len(golf_markers)):
@@ -137,7 +151,7 @@ def build_atx_map_for_single_attribute(year, statistic, markers):
                     popup=golf_markers.loc[idx, 'Name'],
                     icon=folium.Icon(color='green', icon='info-sign')
                 ).add_to(m)
-        if 'ComputerLab' in markers:
+        if markers_dict.get('ComputerLab') in markers:
             labs_markers = markers_data.loc[markers_data['Category'] == 'ComputerLab']
             labs_markers.reset_index(drop=True, inplace=True)
             for idx in range(len(labs_markers)):
@@ -146,7 +160,7 @@ def build_atx_map_for_single_attribute(year, statistic, markers):
                     popup=labs_markers.loc[idx, 'Name'],
                     icon=folium.Icon(color='red', icon='info-sign')
                 ).add_to(m)
-        if 'ElecCarCharging' in markers:
+        if markers_dict.get('ElecCarCharging') in markers:
             elec_markers = markers_data.loc[markers_data['Category'] == 'ElecCarCharging']
             elec_markers.reset_index(drop=True, inplace=True)
             for idx in range(len(elec_markers)):
@@ -155,7 +169,7 @@ def build_atx_map_for_single_attribute(year, statistic, markers):
                     popup=elec_markers.loc[idx, 'Name'],
                     icon=folium.Icon(color='blue', icon='info-sign')
                 ).add_to(m)
-        if 'AffordableHousing' in markers:
+        if markers_dict.get('AffordableHousing') in markers:
             house_markers = markers_data.loc[markers_data['Category'] == 'AffordableHousing']
             house_markers.reset_index(drop=True, inplace=True)
             for idx in range(len(house_markers)):
@@ -164,7 +178,7 @@ def build_atx_map_for_single_attribute(year, statistic, markers):
                     popup=house_markers.loc[idx, 'Name'],
                     icon=folium.Icon(color='lightgray', icon='info-sign')
                 ).add_to(m)
-        if 'Shooting' in markers:
+        if markers_dict.get('Shooting') in markers:
             shoot_markers = markers_data.loc[markers_data['Category'] == 'Shooting']
             shoot_markers.reset_index(drop=True, inplace=True)
             for idx in range(len(shoot_markers)):
@@ -233,7 +247,7 @@ def determine_bivariate_choropleth_color(zipcode, stat1, stat2):
 # Build map of Austin Texas with folium module - START
 #-------------------------------------------------------
 
-def build_atx_map(inp1, inp2):
+def build_atx_map(inp1, inp2, markers):
     # GeoJSON of the zip codes for Austin, Tx
     geo_data = 'atx_zips_coords_ordered.json'
 
@@ -245,8 +259,11 @@ def build_atx_map(inp1, inp2):
     # prepare the customized text for the tooltip
     tooltip_text = []
     for idx in range(len(atx_zip_data)):
-        tooltip_text.append(atx_zip_data['Zip Code'][idx]+' '+ str(atx_zip_data[inp1][idx]))
-    tooltip_text
+        tooltip_text.append('<b>Zip code:</b> ' + atx_zip_data['Zip Code'][idx] +
+                            '<br>' + inp1 + ': ' + str(atx_zip_data[inp1][idx]) +
+                            '<br>' + inp2 + ': ' + str(atx_zip_data[inp2][idx]))
+
+    #tooltip_text
 
     # Append a tooltip column with customized text
     for idx in range(len(tooltip_text)):
@@ -254,13 +271,13 @@ def build_atx_map(inp1, inp2):
     geo_data = map_data
 
     # Create a folium map object
-    # ATX coordinates: 30.2672° N, 97.7431° W
+    # ATX coordinates: 30.2672, -97.7431
     m = folium.Map(
             location=[30.2672, -97.7431],
             tiles='Stamen Toner',
             zoom_start=10)
-    # Now to render the zip codes on the map with just GeoJson
 
+    # Now to render the zip codes on the map with just GeoJson
     choropleth = folium.GeoJson(
         geo_data,
         name='ATX Bivariate Choropleth',
@@ -273,11 +290,58 @@ def build_atx_map(inp1, inp2):
         }
     ).add_to(m)
 
-    # Remember to add layer control
- #   folium.LayerControl().add_to(m)
+    # Add Markers based on the markers list
+    if markers != None:
+        if markers_dict.get('GolfCourse') in markers:
+            golf_markers = markers_data.loc[markers_data['Category'] == 'GolfCourse']
+            golf_markers.reset_index(drop=True, inplace=True)
+            for idx in range(len(golf_markers)):
+                folium.Marker(
+                    location=[golf_markers.loc[idx, 'Lat'], golf_markers.loc[idx, 'Long']],
+                    popup=golf_markers.loc[idx, 'Name'],
+                    icon=folium.Icon(color='green', icon='info-sign')
+                ).add_to(m)
+        if markers_dict.get('ComputerLab') in markers:
+            labs_markers = markers_data.loc[markers_data['Category'] == 'ComputerLab']
+            labs_markers.reset_index(drop=True, inplace=True)
+            for idx in range(len(labs_markers)):
+                folium.Marker(
+                    location=[labs_markers.loc[idx, 'Lat'], labs_markers.loc[idx, 'Long']],
+                    popup=labs_markers.loc[idx, 'Name'],
+                    icon=folium.Icon(color='red', icon='info-sign')
+                ).add_to(m)
+        if markers_dict.get('ElecCarCharging') in markers:
+            elec_markers = markers_data.loc[markers_data['Category'] == 'ElecCarCharging']
+            elec_markers.reset_index(drop=True, inplace=True)
+            for idx in range(len(elec_markers)):
+                folium.Marker(
+                    location=[elec_markers.loc[idx, 'Lat'], elec_markers.loc[idx, 'Long']],
+                    popup=elec_markers.loc[idx, 'Name'],
+                    icon=folium.Icon(color='blue', icon='info-sign')
+                ).add_to(m)
+        if markers_dict.get('AffordableHousing') in markers:
+            house_markers = markers_data.loc[markers_data['Category'] == 'AffordableHousing']
+            house_markers.reset_index(drop=True, inplace=True)
+            for idx in range(len(house_markers)):
+                folium.Marker(
+                    location=[house_markers.loc[idx, 'Lat'], house_markers.loc[idx, 'Long']],
+                    popup=house_markers.loc[idx, 'Name'],
+                    icon=folium.Icon(color='lightgray', icon='info-sign')
+                ).add_to(m)
+        if markers_dict.get('Shooting') in markers:
+            shoot_markers = markers_data.loc[markers_data['Category'] == 'Shooting']
+            shoot_markers.reset_index(drop=True, inplace=True)
+            for idx in range(len(shoot_markers)):
+                folium.Marker(
+                    location=[shoot_markers.loc[idx, 'Lat'], shoot_markers.loc[idx, 'Long']],
+                    popup=shoot_markers.loc[idx, 'Name'],
+                    icon=folium.Icon(color='beige', icon='info-sign')
+                ).add_to(m)
 
-    # Display Region Label
-#    choropleth.geojson.add_child(
+    # Remember to add layer control
+    #folium.LayerControl().add_to(m)
+
+    # Display zip code Label
     choropleth.add_child(
         folium.features.GeoJsonTooltip(fields=['tooltip1'], labels=False)
     )
@@ -289,14 +353,8 @@ def build_atx_map(inp1, inp2):
     source_code = srcDoc.read()
 
     return source_code
-    #-------------------------------------------------------
-    # Build map of Austin Texas with folium module - END
-    #-------------------------------------------------------
 
-
-
-
-
+#-----------------------------------------------------------------------------------------------------------------------
 # App layout
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets, suppress_callback_exceptions=True)
@@ -326,7 +384,7 @@ fig3.update_geos(fitbounds="locations", visible=False)
 fig3.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 
 
-# Tabl
+# Tab1
 tab1 = html.Div([
     html.Div([
         # Dropdown 1
@@ -355,31 +413,23 @@ tab1 = html.Div([
         'backgroundColor': 'rgb(250, 250, 250)',
         'padding': '10px 5px'
     }),
+    html.Div([
+        html.P("Markers Selection:"),
+        dcc.Checklist(
+            id='markers-tab1',
+            options=[{'value': x, 'label': x}
+                     for x in markers_options],
+            #          value=markers_options[0],
+            labelStyle={'display': 'inline-block'}
+        ),
+    ]),
     # Bivariate choropleth matp
     html.Div([
         html.Iframe(id='map', width='100%', height='600')
     ], style={'width': '98%', 'display': 'inline-block', 'padding': '0 20'}),
     # Div for small multiples of the chorpleths
-    html.Div([
-        html.Div([
-            dcc.Graph(
-                id="choropleth-total-pop",
-                figure=fig1
-            )
-        ], style={'width': '23%', 'display': 'inline-block', 'padding': '0 20'}),
-        html.Div([
-            dcc.Graph(
-                id="choropleth-age-01",
-                figure=fig2
-            )
-        ], style={'width': '23%', 'display': 'inline-block', 'padding': '0 20'}),
-        html.Div([
-            dcc.Graph(
-                id="choropleth-age-02",
-                figure=fig3
-            )
-        ], style={'width': '23%', 'display': 'inline-block', 'padding': '0 20'})
-    ], style={'width': '98%', 'height': '350px', 'display': 'inline-block', 'padding': '0 20'}),
+    #TODO add here
+
     # Scatterplot and some other random graph
     #TODO do something about these two graphs  (delete or fix!!)
     html.Div([
@@ -433,7 +483,135 @@ tab2 = html.Div([
     # Single variate choropleth matp
     html.Div([
         html.Iframe(id='map2', width='100%', height='600')
-    ])
+    ]),
+    html.Div([
+        html.Table([
+            html.Tbody([
+                html.Tr([
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig1
+                        )
+                    ],
+                    style = {'width': '33.3%', 'display': 'inline-block', 'margin':'0', 'padding':'0', 'border':'none'}),
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig2
+                        )
+                    ],
+                    style = {'width': '33.3%', 'display': 'inline-block', 'margin':'0', 'padding':'0', 'border':'none'}),
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig3
+                        )
+                    ],
+                    style = {'width': '33.3%', 'display': 'inline-block', 'margin':'0', 'padding':'0', 'border':'none'}),
+
+                ],
+                style={'width': '100%', 'display': 'inline-block'}),
+                html.Tr([
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig1
+                        )
+                    ],
+                    style = {'width': '33.3%', 'display': 'inline-block', 'margin':'0', 'padding':'0', 'border':'none'}),
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig2
+                        )
+                    ],
+                    style = {'width': '33.3%', 'display': 'inline-block', 'margin':'0', 'padding':'0', 'border':'none'}),
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig3
+                        )
+                    ],
+                    style = {'width': '33.3%', 'display': 'inline-block', 'margin':'0', 'padding':'0', 'border':'none'}),
+
+                ],
+                style={'width': '100%', 'display': 'inline-block'}),
+                html.Tr([
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig1
+                        )
+                    ],
+                        style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                               'border': 'none'}),
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig2
+                        )
+                    ],
+                        style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                               'border': 'none'}),
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig3
+                        )
+                    ],
+                        style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                               'border': 'none'}),
+
+                ],
+                style={'width': '100%', 'display': 'inline-block'}),
+                html.Tr([
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig1
+                        )
+                    ],
+                        style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                               'border': 'none'}),
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig2
+                        )
+                    ],
+                        style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                               'border': 'none'}),
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig3
+                        )
+                    ],
+                        style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                               'border': 'none'}),
+
+                ],
+                style={'width': '100%', 'display': 'inline-block'}),
+                html.Tr([
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig1
+                        )
+                    ],
+                        style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                               'border': 'none'}),
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig2
+                        )
+                    ],
+                        style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                               'border': 'none'}),
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig3
+                        )
+                    ],
+                        style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                               'border': 'none'}),
+
+                ],
+                style={'width': '100%', 'display': 'inline-block'}),
+            ],
+            style={'width': '100%', 'display': 'inline-block'}),
+        ],
+        style={'width': '100%', 'display': 'inline-block'}),
+    ],
+    style={'width': '100%', 'display': 'inline-block'}),
 ])
 
 app.layout = html.Div([
@@ -467,15 +645,16 @@ def render_content(tab):
     Output('stat-1-graph', 'figure'),
     Output('stat-2-graph', 'figure'),
     Input('stat-1-selection-dd', 'value'),
-    Input('stat-2-selection-dd', 'value')
+    Input('stat-2-selection-dd', 'value'),
+    Input('markers-tab1', 'value')
 )
-def update_map_of_zip_codes(stat_01, stat_02):
+def update_map_of_zip_codes(stat_01, stat_02, markers):
  #   zip_data = atx_zip_data.sort_values(stat_01, ascending=False)
     fig1 = px.scatter(atx_zip_data, x=stat_01, y=stat_02)
   #  fig1.update_layout(barmode='stack', xaxis={'categoryorder':'total descending'})
     fig2 = px.bar(atx_zip_data, x=atx_zip_data['Zip Code'], y=atx_zip_data[stat_02])
 
-    return build_atx_map(stat_01, stat_02), fig1, fig2
+    return build_atx_map(stat_01, stat_02, markers), fig1, fig2
 
 @app.callback(
     Output('map2', 'srcDoc'),

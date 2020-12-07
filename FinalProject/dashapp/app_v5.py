@@ -9,6 +9,7 @@ import folium
 import json
 import requests
 
+# Version 5: Added scatterplot and pared down the list of dropdown statistics
 
 atx_zip_data = pd.read_csv('atxdata.csv')
 # Convert zip code to string

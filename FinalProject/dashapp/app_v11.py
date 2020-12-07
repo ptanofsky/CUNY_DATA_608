@@ -9,7 +9,7 @@ import folium
 import json
 import requests
 
-# Version 6: Markers working on Tab 2, will moving over to tab 1
+# Version 11: Slider animation working with buttons
 
 atx_zip_data = pd.read_csv('atxdata.csv')
 # Convert zip code to string
@@ -30,8 +30,6 @@ with open('atx_zips_coords_ordered.json') as f:
 
 markers_data = pd.read_csv('markers.csv')
 
-markers_options = markers_data.Category.unique()
-
 #TODO consider moving to the function; not global
 # Color dictionary for bivariate choropleth
 color_key = {'C3':'#3b4994',
@@ -45,7 +43,58 @@ color_key = {'C3':'#3b4994',
              'A1':'#e8e8e8'}
 
 # All the Austin Zip codes under consideration
-atx_zip_codes = ['78610', '78617', '78653', '78660', '78701', '78702', '78703', '78704', '78705', '78721', '78722', '78723', '78724', '78725', '78726', '78727', '78728', '78729', '78730', '78731', '78732', '78733', '78734', '78735', '78736', '78737', '78738', '78739', '78741', '78742', '78744', '78745', '78746', '78747', '78748', '78749', '78750', '78751', '78752', '78753', '78754', '78756', '78757', '78758', '78759']
+atx_zip_codes = ['78610', '78617', '78653', '78660', '78701', '78702', '78703', '78704',
+                 '78705', '78721', '78722', '78723', '78724', '78725', '78726', '78727',
+                 '78728', '78729', '78730', '78731', '78732', '78733', '78734', '78735',
+                 '78736', '78737', '78738', '78739', '78741', '78742', '78744', '78745',
+                 '78746', '78747', '78748', '78749', '78750', '78751', '78752', '78753',
+                 '78754', '78756', '78757', '78758', '78759']
+
+markers_dict = {
+    "GolfCourse": "Public Golf Courses",
+    "ComputerLab": "Public Computer Labs",
+    "ElecCarCharging": "Electric Car Charging Stations",
+    "AffordableHousing": "Affordable Housing Listings",
+    "Shooting": "Officer Involved Shootings (2008-17)"
+}
+
+decade_2010_variables_dict = {
+    "Total population": "B01003_001E",
+    "Sex - Female": "B01001_026E",
+    "Sex - Male":   "B01001_002E",
+    "Income - Less than $10,000": "B19001_002E",
+    "Income - $10,000 to $14,999": "B19001_003E",
+    "Income - $15,000 to $19,999": "B19001_004E",
+    "Income - $20,000 to $24,999": "B19001_005E",
+    "Income - $25,000 to $29,999": "B19001_006E",
+    "Income - $30,000 to $34,999": "B19001_007E",
+    "Income - $35,000 to $39,999": "B19001_008E",
+    "Income - $40,000 to $44,999": "B19001_009E",
+    "Income - $45,000 to $49,999": "B19001_010E",
+    "Income - $50,000 to $59,999": "B19001_011E",
+    "Income - $60,000 to $74,999": "B19001_012E",
+    "Income - $75,000 to $99,999": "B19001_013E",
+    "Income - $100,000 to $124,999": "B19001_014E",
+    "Income - $125,000 to $149,999": "B19001_015E",
+    "Income - $150,000 to $199,999": "B19001_016E",
+    "Income - $200,000 or more": "B19001_017E",
+    "Income - Below poverty level": "B17001_002E",
+    "Race - Hispanic or Latino": "B03002_001E",
+    "Race - White": "B03002_003E",
+    "Race - Black or African American": "B03002_004E",
+    "Race - American Indian and Alaska Native": "B03002_005E",
+    "Race - Asian": "B03002_006E",
+    "Race - Native Hawaiian and Other Pacific Islander": "B03002_007E",
+    "Race - Two or more races": "B02001_008E",
+    "Education - Less than high school graduate": "B16010_002E",
+    "Education - High school graduate (includes equivalency)": "B16010_015E",
+    "Education - Some college or associate degree": "B16010_028E",
+    "Education - Bachelor degree or higher": "B16010_041E"
+}
+
+dd_decade = list(decade_2010_variables_dict.keys())
+
+markers_options = markers_dict.values()
 
 years = [2011,2012,2013,2014,2015,2016,2017,2018]
 
@@ -55,7 +104,7 @@ census_attr_key = {'Total population':'B01003_001E',
 def retrieve_values_for_zip_codes(year, statistic):
 
     key = '09c5dae3e5eb30a5dbff1bce8d228b1c6c204d6b'
-    statistic = census_attr_key.get(statistic)
+    statistic = decade_2010_variables_dict.get(statistic)
     #'B01003_001E' # Currently hard-coded to total population
     url = 'https://api.census.gov/data/' + str(year) + '/acs/acs5?get=NAME,' + statistic + '&for=zip%20code%20tabulation%20area:*&key=' + key
 
@@ -128,7 +177,8 @@ def build_atx_map_for_single_attribute(year, statistic, markers):
     # Add Markers based on the markers list
 
     if markers != None:
-        if 'GolfCourse' in markers:
+
+        if markers_dict.get('GolfCourse') in markers:
             golf_markers = markers_data.loc[markers_data['Category'] == 'GolfCourse']
             golf_markers.reset_index(drop=True, inplace=True)
             for idx in range(len(golf_markers)):
@@ -137,7 +187,7 @@ def build_atx_map_for_single_attribute(year, statistic, markers):
                     popup=golf_markers.loc[idx, 'Name'],
                     icon=folium.Icon(color='green', icon='info-sign')
                 ).add_to(m)
-        if 'ComputerLab' in markers:
+        if markers_dict.get('ComputerLab') in markers:
             labs_markers = markers_data.loc[markers_data['Category'] == 'ComputerLab']
             labs_markers.reset_index(drop=True, inplace=True)
             for idx in range(len(labs_markers)):
@@ -146,7 +196,7 @@ def build_atx_map_for_single_attribute(year, statistic, markers):
                     popup=labs_markers.loc[idx, 'Name'],
                     icon=folium.Icon(color='red', icon='info-sign')
                 ).add_to(m)
-        if 'ElecCarCharging' in markers:
+        if markers_dict.get('ElecCarCharging') in markers:
             elec_markers = markers_data.loc[markers_data['Category'] == 'ElecCarCharging']
             elec_markers.reset_index(drop=True, inplace=True)
             for idx in range(len(elec_markers)):
@@ -155,7 +205,7 @@ def build_atx_map_for_single_attribute(year, statistic, markers):
                     popup=elec_markers.loc[idx, 'Name'],
                     icon=folium.Icon(color='blue', icon='info-sign')
                 ).add_to(m)
-        if 'AffordableHousing' in markers:
+        if markers_dict.get('AffordableHousing') in markers:
             house_markers = markers_data.loc[markers_data['Category'] == 'AffordableHousing']
             house_markers.reset_index(drop=True, inplace=True)
             for idx in range(len(house_markers)):
@@ -164,7 +214,7 @@ def build_atx_map_for_single_attribute(year, statistic, markers):
                     popup=house_markers.loc[idx, 'Name'],
                     icon=folium.Icon(color='lightgray', icon='info-sign')
                 ).add_to(m)
-        if 'Shooting' in markers:
+        if markers_dict.get('Shooting') in markers:
             shoot_markers = markers_data.loc[markers_data['Category'] == 'Shooting']
             shoot_markers.reset_index(drop=True, inplace=True)
             for idx in range(len(shoot_markers)):
@@ -233,7 +283,7 @@ def determine_bivariate_choropleth_color(zipcode, stat1, stat2):
 # Build map of Austin Texas with folium module - START
 #-------------------------------------------------------
 
-def build_atx_map(inp1, inp2):
+def build_atx_map(inp1, inp2, markers):
     # GeoJSON of the zip codes for Austin, Tx
     geo_data = 'atx_zips_coords_ordered.json'
 
@@ -245,8 +295,11 @@ def build_atx_map(inp1, inp2):
     # prepare the customized text for the tooltip
     tooltip_text = []
     for idx in range(len(atx_zip_data)):
-        tooltip_text.append(atx_zip_data['Zip Code'][idx]+' '+ str(atx_zip_data[inp1][idx]))
-    tooltip_text
+        tooltip_text.append('<b>Zip code:</b> ' + atx_zip_data['Zip Code'][idx] +
+                            '<br>' + inp1 + ': ' + str(atx_zip_data[inp1][idx]) +
+                            '<br>' + inp2 + ': ' + str(atx_zip_data[inp2][idx]))
+
+    #tooltip_text
 
     # Append a tooltip column with customized text
     for idx in range(len(tooltip_text)):
@@ -254,13 +307,13 @@ def build_atx_map(inp1, inp2):
     geo_data = map_data
 
     # Create a folium map object
-    # ATX coordinates: 30.2672° N, 97.7431° W
+    # ATX coordinates: 30.2672, -97.7431
     m = folium.Map(
             location=[30.2672, -97.7431],
             tiles='Stamen Toner',
             zoom_start=10)
-    # Now to render the zip codes on the map with just GeoJson
 
+    # Now to render the zip codes on the map with just GeoJson
     choropleth = folium.GeoJson(
         geo_data,
         name='ATX Bivariate Choropleth',
@@ -273,11 +326,58 @@ def build_atx_map(inp1, inp2):
         }
     ).add_to(m)
 
-    # Remember to add layer control
- #   folium.LayerControl().add_to(m)
+    # Add Markers based on the markers list
+    if markers != None:
+        if markers_dict.get('GolfCourse') in markers:
+            golf_markers = markers_data.loc[markers_data['Category'] == 'GolfCourse']
+            golf_markers.reset_index(drop=True, inplace=True)
+            for idx in range(len(golf_markers)):
+                folium.Marker(
+                    location=[golf_markers.loc[idx, 'Lat'], golf_markers.loc[idx, 'Long']],
+                    popup=golf_markers.loc[idx, 'Name'],
+                    icon=folium.Icon(color='green', icon='info-sign')
+                ).add_to(m)
+        if markers_dict.get('ComputerLab') in markers:
+            labs_markers = markers_data.loc[markers_data['Category'] == 'ComputerLab']
+            labs_markers.reset_index(drop=True, inplace=True)
+            for idx in range(len(labs_markers)):
+                folium.Marker(
+                    location=[labs_markers.loc[idx, 'Lat'], labs_markers.loc[idx, 'Long']],
+                    popup=labs_markers.loc[idx, 'Name'],
+                    icon=folium.Icon(color='red', icon='info-sign')
+                ).add_to(m)
+        if markers_dict.get('ElecCarCharging') in markers:
+            elec_markers = markers_data.loc[markers_data['Category'] == 'ElecCarCharging']
+            elec_markers.reset_index(drop=True, inplace=True)
+            for idx in range(len(elec_markers)):
+                folium.Marker(
+                    location=[elec_markers.loc[idx, 'Lat'], elec_markers.loc[idx, 'Long']],
+                    popup=elec_markers.loc[idx, 'Name'],
+                    icon=folium.Icon(color='blue', icon='info-sign')
+                ).add_to(m)
+        if markers_dict.get('AffordableHousing') in markers:
+            house_markers = markers_data.loc[markers_data['Category'] == 'AffordableHousing']
+            house_markers.reset_index(drop=True, inplace=True)
+            for idx in range(len(house_markers)):
+                folium.Marker(
+                    location=[house_markers.loc[idx, 'Lat'], house_markers.loc[idx, 'Long']],
+                    popup=house_markers.loc[idx, 'Name'],
+                    icon=folium.Icon(color='lightgray', icon='info-sign')
+                ).add_to(m)
+        if markers_dict.get('Shooting') in markers:
+            shoot_markers = markers_data.loc[markers_data['Category'] == 'Shooting']
+            shoot_markers.reset_index(drop=True, inplace=True)
+            for idx in range(len(shoot_markers)):
+                folium.Marker(
+                    location=[shoot_markers.loc[idx, 'Lat'], shoot_markers.loc[idx, 'Long']],
+                    popup=shoot_markers.loc[idx, 'Name'],
+                    icon=folium.Icon(color='beige', icon='info-sign')
+                ).add_to(m)
 
-    # Display Region Label
-#    choropleth.geojson.add_child(
+    # Remember to add layer control
+    #folium.LayerControl().add_to(m)
+
+    # Display zip code Label
     choropleth.add_child(
         folium.features.GeoJsonTooltip(fields=['tooltip1'], labels=False)
     )
@@ -289,14 +389,8 @@ def build_atx_map(inp1, inp2):
     source_code = srcDoc.read()
 
     return source_code
-    #-------------------------------------------------------
-    # Build map of Austin Texas with folium module - END
-    #-------------------------------------------------------
 
-
-
-
-
+#-----------------------------------------------------------------------------------------------------------------------
 # App layout
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets, suppress_callback_exceptions=True)
@@ -326,7 +420,7 @@ fig3.update_geos(fitbounds="locations", visible=False)
 fig3.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 
 
-# Tabl
+# Tab1
 tab1 = html.Div([
     html.Div([
         # Dropdown 1
@@ -355,31 +449,23 @@ tab1 = html.Div([
         'backgroundColor': 'rgb(250, 250, 250)',
         'padding': '10px 5px'
     }),
+    html.Div([
+        html.P("Markers Selection:"),
+        dcc.Checklist(
+            id='markers-tab1',
+            options=[{'value': x, 'label': x}
+                     for x in markers_options],
+            #          value=markers_options[0],
+            labelStyle={'display': 'inline-block'}
+        ),
+    ]),
     # Bivariate choropleth matp
     html.Div([
         html.Iframe(id='map', width='100%', height='600')
     ], style={'width': '98%', 'display': 'inline-block', 'padding': '0 20'}),
     # Div for small multiples of the chorpleths
-    html.Div([
-        html.Div([
-            dcc.Graph(
-                id="choropleth-total-pop",
-                figure=fig1
-            )
-        ], style={'width': '23%', 'display': 'inline-block', 'padding': '0 20'}),
-        html.Div([
-            dcc.Graph(
-                id="choropleth-age-01",
-                figure=fig2
-            )
-        ], style={'width': '23%', 'display': 'inline-block', 'padding': '0 20'}),
-        html.Div([
-            dcc.Graph(
-                id="choropleth-age-02",
-                figure=fig3
-            )
-        ], style={'width': '23%', 'display': 'inline-block', 'padding': '0 20'})
-    ], style={'width': '98%', 'height': '350px', 'display': 'inline-block', 'padding': '0 20'}),
+    #TODO add here
+
     # Scatterplot and some other random graph
     #TODO do something about these two graphs  (delete or fix!!)
     html.Div([
@@ -406,20 +492,29 @@ tab2 = html.Div([
         html.H6(children='Select a Statistic'),
         dcc.Dropdown(
             id='tab-2-selection-dd',
-            options=[{'label': i, 'value': i} for i in dd_list_stats],
+            options=[{'label': i, 'value': i} for i in dd_decade],
             value='Total population',
             clearable=False
         )
     ],
     style={'width': '49%', 'display': 'inline-block'}),
-    dcc.Slider(
-        id='year-slider',
-        min=min(years),
-        max=max(years),
-        value=max(years),
-        marks={str(year): str(year) for year in list(set(years))},
-        step=None
-    ),
+    html.Div([
+        html.Button('Play Animation', id='animation-play-btn', disabled=False),
+        html.Button('Pause Animation', id='animation-pause-btn', disabled=True),
+        dcc.Interval(id='auto-stepper',
+                     interval=8 * 1000, # in milliseconds
+                     n_intervals=0,
+                     disabled=True
+        ),
+        dcc.Slider(
+            id='year-slider',
+            min=min(years),
+            max=max(years),
+            value=max(years),
+            marks={str(year): str(year) for year in list(set(years))},
+            step=None
+        ),
+    ]),
     html.Div([
         html.P("Markers Selection:"),
         dcc.Checklist(
@@ -430,10 +525,138 @@ tab2 = html.Div([
             labelStyle={'display': 'inline-block'}
         ),
     ]),
-    # Single variate choropleth matp
+    # Single variate choropleth map
     html.Div([
         html.Iframe(id='map2', width='100%', height='600')
-    ])
+    ]),
+    html.Div([
+        html.Table([
+            html.Tbody([
+                html.Tr([
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig1
+                        )
+                    ],
+                    style = {'width': '33.3%', 'display': 'inline-block', 'margin':'0', 'padding':'0', 'border':'none'}),
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig2
+                        )
+                    ],
+                    style = {'width': '33.3%', 'display': 'inline-block', 'margin':'0', 'padding':'0', 'border':'none'}),
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig3
+                        )
+                    ],
+                    style = {'width': '33.3%', 'display': 'inline-block', 'margin':'0', 'padding':'0', 'border':'none'}),
+
+                ],
+                style={'width': '100%', 'display': 'inline-block'}),
+                html.Tr([
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig1
+                        )
+                    ],
+                    style = {'width': '33.3%', 'display': 'inline-block', 'margin':'0', 'padding':'0', 'border':'none'}),
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig2
+                        )
+                    ],
+                    style = {'width': '33.3%', 'display': 'inline-block', 'margin':'0', 'padding':'0', 'border':'none'}),
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig3
+                        )
+                    ],
+                    style = {'width': '33.3%', 'display': 'inline-block', 'margin':'0', 'padding':'0', 'border':'none'}),
+
+                ],
+                style={'width': '100%', 'display': 'inline-block'}),
+                html.Tr([
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig1
+                        )
+                    ],
+                        style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                               'border': 'none'}),
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig2
+                        )
+                    ],
+                        style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                               'border': 'none'}),
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig3
+                        )
+                    ],
+                        style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                               'border': 'none'}),
+
+                ],
+                style={'width': '100%', 'display': 'inline-block'}),
+                html.Tr([
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig1
+                        )
+                    ],
+                        style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                               'border': 'none'}),
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig2
+                        )
+                    ],
+                        style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                               'border': 'none'}),
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig3
+                        )
+                    ],
+                        style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                               'border': 'none'}),
+
+                ],
+                style={'width': '100%', 'display': 'inline-block'}),
+                html.Tr([
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig1
+                        )
+                    ],
+                        style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                               'border': 'none'}),
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig2
+                        )
+                    ],
+                        style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                               'border': 'none'}),
+                    html.Td([
+                        dcc.Graph(
+                            figure=fig3
+                        )
+                    ],
+                        style={'width': '33.3%', 'display': 'inline-block', 'margin': '0', 'padding': '0',
+                               'border': 'none'}),
+
+                ],
+                style={'width': '100%', 'display': 'inline-block'}),
+            ],
+            style={'width': '100%', 'display': 'inline-block'}),
+        ],
+        style={'width': '100%', 'display': 'inline-block'}),
+    ],
+    style={'width': '100%', 'display': 'inline-block'}),
 ])
 
 app.layout = html.Div([
@@ -467,15 +690,16 @@ def render_content(tab):
     Output('stat-1-graph', 'figure'),
     Output('stat-2-graph', 'figure'),
     Input('stat-1-selection-dd', 'value'),
-    Input('stat-2-selection-dd', 'value')
+    Input('stat-2-selection-dd', 'value'),
+    Input('markers-tab1', 'value')
 )
-def update_map_of_zip_codes(stat_01, stat_02):
+def update_map_of_zip_codes(stat_01, stat_02, markers):
  #   zip_data = atx_zip_data.sort_values(stat_01, ascending=False)
     fig1 = px.scatter(atx_zip_data, x=stat_01, y=stat_02)
   #  fig1.update_layout(barmode='stack', xaxis={'categoryorder':'total descending'})
     fig2 = px.bar(atx_zip_data, x=atx_zip_data['Zip Code'], y=atx_zip_data[stat_02])
 
-    return build_atx_map(stat_01, stat_02), fig1, fig2
+    return build_atx_map(stat_01, stat_02, markers), fig1, fig2
 
 @app.callback(
     Output('map2', 'srcDoc'),
@@ -486,6 +710,41 @@ def update_map_of_zip_codes(stat_01, stat_02):
 def update_map_of_zip_codes_single_attribute(year, stat_01, markers):
     return build_atx_map_for_single_attribute(year, stat_01, markers)
 
+@app.callback(
+    Output('year-slider', 'value'),
+    Input('auto-stepper', 'n_intervals')
+)
+def on_click(n_intervals):
+    if n_intervals is None:
+        return years[0]
+    else:
+        index = (n_intervals + 1) % len(years)
+
+    return years[index]
+
+@app.callback(
+    Output('auto-stepper', 'disabled'),
+    Output('animation-play-btn', 'disabled'),
+    Output('animation-pause-btn', 'disabled'),
+    Input('animation-play-btn', 'n_clicks'),
+    Input('animation-pause-btn', 'n_clicks'),
+)
+def play_pause_slider(play_btn, pause_btn):
+    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+
+    set_slider_disabled = False
+    set_play_button_disabled = False
+    set_pause_button_disabled = False
+
+    if 'animation-play-btn' in changed_id:
+        set_slider_disabled = False
+        set_play_button_disabled = True
+        set_pause_button_disabled = False
+    elif 'animation-pause-btn' in changed_id:
+        set_slider_disabled = True
+        set_play_button_disabled = False
+        set_pause_button_disabled = True
+    return set_slider_disabled, set_play_button_disabled, set_pause_button_disabled
 
 
 if __name__ == '__main__':

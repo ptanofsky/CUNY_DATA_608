@@ -7,6 +7,8 @@ import numpy as np
 import folium
 import json
 
+# Version: Working bivariate choropleth
+
 df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/gapminderDataFiveYear.csv')
 
 
