@@ -21,5 +21,8 @@ https://github.com/ptanofsky/CUNY_DATA_608/blob/master/FinalProject/FinalProject
 https://github.com/ptanofsky/CUNY_DATA_608/blob/master/FinalProject/FoliumBivariateChoropleth.ipynb
 https://github.com/ptanofsky/CUNY_DATA_608/blob/master/FinalProject/MakeFileForAtxZipsOnly.ipynb
 
+Project write-up:
+https://github.com/ptanofsky/CUNY_DATA_608/blob/master/FinalProject/DATA608_FinalProjectWriteUp_PST.pdf
+
 
 
