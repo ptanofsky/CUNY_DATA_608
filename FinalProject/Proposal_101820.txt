@@ -1,0 +1,50 @@
+You must submit a proposal for your project by 03/26. This proposal must include: a link to
+the data source, an explanation of what you want to show, why this is relevant to a current
+policy, business, or justice issue, and which technologies you plan to use.
+
+
+My goal is to focus on inequality in Travis County, the county that contains the Texas capital city of Austin. Like many growing urban cities across the United States (at least pre-pandemic), such as New York City, Boston, San Francisco and Seattle, Austin is booming, but for who. Typically, when a city is booming, the growth and resources are concentrated on those citizens that already have wealth and access to resources. In this study of inequality in Austin, I do intend to represent socio-economic impacts by race, too, as Black and Latinx families and individuals do not enjoy the fruits of a city's boom.
+
+Inspired the the choropleth map, I would like to build visualizations that defines the different zip codes within Travis county using census and IRS data from the federal government along with county specific data provied by Travis County or the city of Austin. The goal of this project will be to provide a visualization of income (wealth) along with access to resources across Travis County. I plan to use the Plotly library and Datashader module to build the application. I would also like to deploy the app using Dash to give users an interactive experience.
+
+
+Federal data - Individual Income Tax ZIP Code Data:
+https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-statistics-zip-code-data-soi
+Federal data - Ethnicity by Zip code
+-- Still working on this one
+Federal data - Population by Zip code
+-- https://www.kaggle.com/census/census-bureau-usa?select=population_by_zip_2010
+
+Texas (or Austin) data:
+- Short Term Rental Locations
+-- https://data.austintexas.gov/City-Government/Short-Term-Rental-Locations/2fah-4p7e
+- Affordable Housing Listing
+-- https://data.austintexas.gov/Housing-and-Real-Estate/Affordable-Housing-Listing/ngxp-99y3
+- Preventable Hospitalizations in Travis County by ZIP Code 2016
+-- https://data.austintexas.gov/Health-and-Community-Services/Preventable-Hospitalizations-in-Travis-County-by-Z/tpa8-5hku
+- Golf Courses in Austin
+-- https://data.austintexas.gov/Recreation-and-Culture/Golf-Courses-in-Austin/dtkn-v97q
+- Plug-In EVerywhere Charging Station Network
+-- https://data.austintexas.gov/Utilities-and-City-Services/Plug-In-EVerywhere-Charging-Station-Network/k5hp-eece
+- Public Computer Labs
+-- https://data.austintexas.gov/dataset/Public-Computer-Labs/s6uc-6djk
+- Officer Involved Shootings 2008-17 Incidents
+-- https://data.austintexas.gov/Public-Safety/Officer-Involved-Shootings-2008-17-Incidents/uzqv-9uza
+- Residential Demolitions dataset
+-- https://data.austintexas.gov/Building-and-Development/Residential-Demolitions-dataset/x6mf-sksh
+
+Full disclosure: I live in Austin, Texas.
+
+
+
+Write-up
+The interactive visualization offers a view of the underlying socioeconomic make-up for Austin, Texas across several factors including race, household income, poverty and employment presented as a bivariate choropleth map based on publicly available data from 2017. The visualization also maps an overlay of community resources and recent officer-involved shootings to provide clarity into which segments of the population are afforded a greater percentage of the resources and which segments are potentially more likely to witness an engagement with law enforcement. A scatterplot of two selected variables presents a simple analysis of the data to gauge any visual relationship across the 45 zip codes of Austin. The visualization also presents a single variable choropleth based on publicly available demographic data to highlight the change in Austin from 2011 to 2018 as gentrification creeps eastward across I-35.
+
+the data source: publicly available demographic data provided by Travis County and Austin Texas along with locations of public resources
+Data set represents: geographic breakdown of Austin Texas by zip code of demographic data from 2017 and a recent historical view of the demographic data from 2011-2018. Demographic dats is common census data of population counts by race, income, sex, povery, and employment.
+What the data shows and why important: the data shows the inconsistent distribution of the population by race and income. The overlay of resource locations provides an insight into the segements of the population with greater access to the public resources. The distribution of resources does not favor everyone equally.
+
+Overall, the visualization attempts to focus on inequality and concentration of public resources in Austin, Travis County, Texas. Like many growing urban cities across the United States, such as New York City, Boston, San Francisco and Seattle, Austin is booming, but for whom? Typically, when a city is booming, the growth and resources are concentrated on those citizens that already have wealth and access to resources. This visualization provides a view of the socio-economic make-up and access to public resources in Austin.
+The publicly available application is written in Python using the Plotly Dash framework and deployed on Herkou.
+
+

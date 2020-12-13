@@ -1,0 +1,183 @@
+Case #,Date,Day of Week,Time,Premise Category,Less Lethal Force used by APD prior to shooting?,Subject Weapon,Number of Officer Shooters,Call Type Categories,# Officers Present When Shots Fired,# Hits,Location 1
+"15-0381788
+15-5005471
+15-5006662",02/08/2015,Sun,12:09 PM,Yard/Courtyard,No,rifle,1,shots fired,26,1,"8206 Pax Dr
+(30.244609, -97.888612)"
+"14-3320160
+14-5052475",11/28/2014,Fri,2:22 AM,Street,No,rifle,1,shots fired,10,1,"715 E 8th St
+(48.192789, -114.299949)"
+"13-5048070
+13-5048073
+13-2911294",10/18/2013,Fri,3:20 PM,Yard/Courtyard,No,rifle,3,shots fired,5,1,"1609 Cripple Creek Dr
+(30.379773, -97.704626)"
+"17-0531372
+17-5015929
+17-5007713",02/22/2017,Wed,6:16 PM,wooded area,no,knife,1,other - nature unknown,1,2,"7600 MANCHACA RD
+(30.1955, -97.810196)"
+"17-1270282
+17-5018795
+17-5026492
+17-1270300",05/07/2017,Sun,2:39 AM,street,no,handgun,1,shots fired,8,3,"600 TRINITY ST
+(29.881245, -97.667536)"
+09-0431751,02/12/2009,Thu,5:51 PM,Parking Lot,No,"gun, vehicle",1,warrant,4,2,"9218 Balcones Club Dr
+(30.443284, -97.787553)"
+"11-5038917
+11-2271207",08/15/2011,Mon,4:50 PM,Street,No,gun,2,robbery,3,0,"3630 S Congress Ave
+(26.489341, -80.089825)"
+"12-5047326
+12-2940313",10/20/2012,Sat,2:10 AM,Street,No,vehicle,1,disturbance,3,0,"300 block E 6th St
+(38.848634, -91.944226)"
+"13-5019982
+13-1280390",05/08/2013,Wed,7:51 AM,Street,No,none,1,traffic stop,1,0,"3300 E 12th St
+(40.178357, -85.348554)"
+"15-0230201
+15-5003040
+15-5003476",01/23/2015,Fri,3:45 AM,Parking Lot,No,gun,1,domestic disturbance,4,2,"120 W Slaughter Ln
+(30.167208, -97.788916)"
+11-3390300,12/05/2011,Mon,6:53 AM,Street,No,vehicle,2,stolen vehicle,10,3,"3708 Aspen Creek Pkwy
+(30.181796, -97.856066)"
+"15-1860670
+15-5029092
+15-5030645",07/05/2015,Sun,4:14 AM,Residence,Yes - Taser,pellet gun,3,suicidal subject,3,6,"10607 Golden Quail Dr
+(30.379781, -97.70205)"
+"14-5003813
+14-0250881",01/25/2014,Sat,1:42 PM,Parking Lot,No,vehicle,1,other - flagged down by victim of an LTS,1,0,"9400 N Lamar Blvd
+(30.363177, -97.696992)"
+"10-2740401
+10-2741075",10/01/2010,Fri,5:53 AM,Business,No,gun,1,burglar alarm,2,4,"801 E William Cannon Dr
+(30.19096, -97.771937)"
+"10-5055642
+10-2680066",09/25/2010,Sat,4:26 AM,Street,No,gun,1,domestic disturbance,30,1,"7800 E Ben White Blvd WB
+(30.219623, -97.689696)"
+"16-2900369
+16-5046503
+16-5042860",10/16/2016,Sun,3:54 AM,Residence,No,air pistol (BB gun),2,check welfare,5,5,"744 W William Cannon Dr
+(30.197953, -97.789496)"
+"17-1220770
+17-5018080
+17-5041807",05/02/2017,Tue,11:17 AM,street,no,handgun,1,disturbance,5,2,"11300 block LONG WINTER DR
+(37.49396, -92.294899)"
+"11-5052201
+11-3090370",11/05/2011,Sat,3:10 AM,Parking Lot,Yes - Taser,none (radio face plate),1,disturbance,2,0,"810 E Slaughter Ln
+(30.159946, -97.77643)"
+11-5060110 11-3621220,12/28/2011,Wed,5:19 PM,Parking Lot,No,vehicle,1,other - narcotics,4,0,"7800 N IH 35 Svrd SB
+(29.56345, -98.340468)"
+"15-1860826
+15-5029094
+15-5030656 ",07/05/2015,Sun,4:54 AM,Business,No,rifle,1,shots fired,3,10,"700 San Jacinto Blvd
+(30.269158, -97.739649)"
+"17-972006
+17-5014510",04/07/2017,Fri,10:12 PM,residence,no,rifle,4,disturbance,9,9,"6321 PARLIAMENT DR
+(30.28687, -97.658896)"
+"10-5058733
+10-5058741
+10-5058742
+10-3060261",11/02/2010,Tue,05:17 / 06:10,Residence / Parking Lot,No,gun,2,disturbance,5,4,"12320 Tomanet Trl / 12331 N Mopac Expy Svrd NB
+(30.41496, -97.703314)"
+"15-1440098
+15-5022158",05/24/2015,Sun,1:14 AM,Yard/Courtyard,No,gun,2,suspicious person,3,3,"6409 Springdale Rd
+(30.307201, -97.669664)"
+"17-5005154
+17-370047",02/06/2017,Mon,12:41 AM,street,no,vehicle,1,traffic stop,3,0,"1100 Marks Circle
+(30.268608, -97.691009)"
+"11-5028251
+11-1502313",05/30/2011,Mon,11:07 PM,Street,No,vehicle,1,suspicious person,2,4,"800 Block E 8th St
+(40.868762, -97.583783)"
+"09-5072203
+09-3620161",12/28/2009,Mon,2:54 AM,Residence,No,gun,2,domestic disturbance,3,1,"11815 Johnny Weismuller Ln
+(30.151215, -97.843473)"
+"16-1131869
+16-5031156
+16-5016874",04/22/2016,Fri,10:20 PM,Parking Lot,No,knife,1,disturbance,1,1,"6600 S MoPac Expy Svrd SB
+(30.221231, -97.836546)"
+"17-5049741
+17-3490320",12/15/2017,Fri,6:49 AM,residence,no,knife,1,other - stabbing,1,1,"5007 Lynnwood St
+(30.322115, -97.740477)"
+"13-5009062
+13-0600435",03/01/2013,Fri,7:32 AM,Residence,No,gun,1,shots fired,1,2,"10617 Lanshire Dr
+(30.384132, -97.708018)"
+"17-140100
+17-5001846
+17-5020338",01/14/2017,Sat,2:03 AM,church,no,rifle and shotgun,1,disturbance,4,5,"11512 OLSON DR
+(30.445259, -97.805086)"
+"10-5068185
+10-3572205",12/23/2010,Thu,10:53 PM,Street,Yes - Taser and Weaponless,knife,1,traffic stop,2,1,"13006 Campos Dr
+(30.438023, -97.740493)"
+"15-1450142
+15-5022316
+15-5022877",05/25/2015,Mon,6:13 AM,Yard/Courtyard,Yes - impact weapon,gun,1,suicidal subject,10,3,"6505 Shirley Ave
+(30.33259, -97.720879)"
+"13-5052096
+13-3141499",11/10/2013,Sun,9:17 PM,Yard/Courtyard,No,gun,2,check welfare,9,1,"2900 Cole St
+(30.2877, -97.725141)"
+"09-5052963
+09-2280484",08/16/2009,Sun,3:06 AM,Parking Lot,No,vehicle,2,traffic stop,3,4,"1515 Wickersham Ln
+(30.235461, -97.718944)"
+"12-5016942
+12-0961610",04/05/2012,Thu,6:40 PM,Yard/Courtyard,Yes - Taser and Weaponless,mic cord,1,traffic stop,1,3,"5200 Block Overbrook Dr
+(30.298349, -97.684711)"
+"16-2581947
+16-5040418
+16-5038102",09/15/2016,Thu,12:02 AM,Parking Lot,Yes - Taser,handgun,2,suspicious person,4,5,"4201 Monterey Oaks Blvd
+(30.228925, -97.83392)"
+"16-940866
+16-941306
+16-5013826
+16-5017173",04/03/2016,Sun,11:01 AM,Parking Lot,No,gun,1,disturbance,1,3,"508 West Ave
+(30.298878, -82.978832)"
+"13-5021565
+13-1370254",05/17/2013,Fri,3:27 AM,Yard/Courtyard,No,gun,1,shots fired,3,0,"6855 E US 290 Hwy SVRD EB
+(30.321071, -97.687437)"
+"13-5039952
+13-2430035",08/31/2013,Sat,12:13 AM,Parking Lot,No,vehicle,1,burglar alarm,1,5,"9416 Neils Thompson Dr
+(30.382402, -97.733069)"
+"13-5002063
+13-0141039",01/14/2013,Mon,3:30 PM,Parking Lot,No,gun,2,robbery,2,0,"7112 Ed Bluestein Blvd SVRD SB
+(30.312738, -97.66281)"
+"15-1922009
+15-5030362 ",07/12/2015,Sun,12:51 PM,Yard/Courtyard,No,gun,1,suspicious person,2,2,"9400 Claxton Dr
+(30.246406, -97.910421)"
+"09-5053921
+09-1310302",05/11/2009,Mon,5:07 AM,Parking Lot,No,gun,1,other - robbery suspect vehicle,3,3,"6409 Springdale Rd
+(30.307201, -97.669664)"
+"16-1050267
+16-5015495",04/14/2016,Thu,5:56 AM,Residence,No,rifle,1,warrant,8,0,"1002 Morrow St
+(30.345194, -97.717559)"
+"12-5005552
+12-0341696",02/03/2012,Fri,9:33 PM,Parking Lot,No,gun,1,check welfare,16,1,"7201 Wood Hollow Dr
+(30.355057, -97.752106)"
+14-2511591,09/08/2014,Mon,7:38 PM,Residence,No,gun,3,warrant,3,2,"13712 Maye Pl
+(30.426237, -97.673119)"
+"16-801294
+16-5011754",03/20/2016,Sun,11:07 PM,Parking Lot,no,knife,1,other - aggravated assault,1,1,"9811 N IH 35 SVRD NB
+(30.362494, -97.684934)"
+"12-5043966
+12-2691696",09/25/2012,Tue,8:39 PM,Parking Lot,No,vehicle,1,stolen vehicle,2,1,"2915 S IH 35 Svrd NB
+(30.227091, -97.74466)"
+"08-5059600
+08-3110300",11/06/2008,Thu,3:56 AM,Parking Lot,No,gun,1,disturbance,3,2,"6603 Berkman Dr
+(30.319315, -97.689358)"
+"13-5017606
+13-1131720",04/23/2013,Tue,8:40 PM,Yard/Courtyard,No,rifle,4,suicidal subject,4,7,"706 Valdez St
+(30.234584, -97.691949)"
+"17-5049986
+17-3510568",12/17/2017,Sun,10:42 AM,residence,no,knife,1,disturbance,1,,"4022 Greenhill Place
+(30.379441, -97.751594)"
+"11-5023381
+11-1290071",05/09/2011,Mon,1:03 AM,Yard/Courtyard,No,gun,1,shots fired,2,3,"1919 Burton Dr
+(30.233907, -97.731631)"
+"14-5012166
+14-0770816",03/18/2014,Tue,12:24 PM,Yard/Courtyard,No,air pistol (BB gun),1,domestic disturbance,1,2,"6301 Berkman Dr
+(30.316889, -97.690853)"
+"09-5006129
+09-0302652",01/30/2009,Fri,10:46 PM,Business,No,gun,1,burglar alarm,8,0,"4714 S Congress Ave
+(30.214181, -97.769479)"
+"16-2492260
+16-5036999
+16-5036744",09/05/2016,Mon,9:03 AM,Parking Lot,Yes - impact weapon,rifle,2,domestic disturbance,14,4,"12501 Tech Ridge Blvd
+(30.398698, -97.661704)"
+"16-390552
+16-5007698
+16-6005558
+",02/08/2016,Mon,10:26 AM,residence,no,none,1,suspicious person,1,2,"12000 block Natures Bnd
+(30.391489, -97.667084)"
