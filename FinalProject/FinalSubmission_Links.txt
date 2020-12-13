@@ -1,0 +1,25 @@
+Repository for Dash app: 
+https://github.com/ptanofsky/CUNY_DATA_608/tree/master/FinalProject/dashapp
+
+Files needed to run locally:
+https://github.com/ptanofsky/CUNY_DATA_608/blob/master/FinalProject/dashapp/app.py
+https://github.com/ptanofsky/CUNY_DATA_608/blob/master/FinalProject/dashapp/atx_zips_coords_ordered.json
+https://github.com/ptanofsky/CUNY_DATA_608/blob/master/FinalProject/dashapp/map.html
+https://github.com/ptanofsky/CUNY_DATA_608/blob/master/FinalProject/dashapp/assets/bivariatelegend.jpg
+
+Public app URL:
+https://pst-data608-final.herokuapp.com/
+
+Pre-recorded presentation:
+https://www.youtube.com/watch?v=cRlX3rr7U6U&t=1s
+
+Jupyter notebooks for data prep and functionality prototypes:
+https://github.com/ptanofsky/CUNY_DATA_608/blob/master/FinalProject/AustinTexas_MapPrep.ipynb
+https://github.com/ptanofsky/CUNY_DATA_608/blob/master/FinalProject/CallingCensusAPI.ipynb
+https://github.com/ptanofsky/CUNY_DATA_608/blob/master/FinalProject/DataPrep_Markers.ipynb
+https://github.com/ptanofsky/CUNY_DATA_608/blob/master/FinalProject/FinalProject_DataPrep_v2.ipynb
+https://github.com/ptanofsky/CUNY_DATA_608/blob/master/FinalProject/FoliumBivariateChoropleth.ipynb
+https://github.com/ptanofsky/CUNY_DATA_608/blob/master/FinalProject/MakeFileForAtxZipsOnly.ipynb
+
+
+
