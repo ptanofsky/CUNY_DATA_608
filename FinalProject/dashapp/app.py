@@ -3,14 +3,13 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 import plotly.express as px
-import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
 import folium
 import json
 import requests
 
-# Version 16: Final
+# Version 17: Final, editing for Heroku app
 
 #-----------------------------------------------------------------
 # Description of app: Plotly Dash App to visualize socioeconomic differences in Austin, Texas. Tab 1 contains
@@ -24,7 +23,7 @@ import requests
 # The same markers by category from tab 1 are also available on the tab 2 map.
 #
 # To run locally:
-# comamand: python app.py
+# command: python app.py
 # URL: localhost:8050
 #-----------------------------------------------------------------
 
@@ -39,8 +38,8 @@ dd_list_stats = list(atx_zip_data)
 dd_list_stats.remove('Zip Code')
 
 # Load coordinates of the Austin Zip codes from GeoJSON file
-content = requests.get('https://raw.githubusercontent.com/ptanofsky/CUNY_DATA_608/master/FinalProject/dashapp/atx_zips_coords_ordered.json')
-choro_geo_data = json.loads(content.content)
+with open('atx_zips_coords_ordered.json') as f:
+    choro_geo_data = json.load(f)
 
 # Read in file of locations based on category for Austin
 markers_data = pd.read_csv('https://raw.githubusercontent.com/ptanofsky/CUNY_DATA_608/master/FinalProject/dashapp/markers.csv')
@@ -114,6 +113,7 @@ markers_options = markers_dict.values()
 
 # List of years under consideration for Austin decade visual
 years = [2011,2012,2013,2014,2015,2016,2017,2018]
+
 
 #-----------------------------------------------------------------
 # Function definitions
@@ -406,6 +406,9 @@ def build_atx_map(inp1, inp2, markers):
 #--------------------------------------------------------------------
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets, suppress_callback_exceptions=True)
+# Server variable needed for Heroku app
+server = app.server
+
 
 small_multiple_choropleths = []
 
@@ -790,6 +793,7 @@ def update_map_of_zip_codes(stat_01, stat_02, markers):
     fig1 = px.scatter(atx_zip_data, x=stat_01, y=stat_02, text='Zip Code', width=1000, height=600)
     fig1.update_traces(
         textposition='{} {}'.format('top', 'center'))
+#    result = q.enqueue(build_atx_map, stat_01, stat_02, markers)
     return build_atx_map(stat_01, stat_02, markers), fig1
 
 
@@ -800,6 +804,7 @@ def update_map_of_zip_codes(stat_01, stat_02, markers):
     Input('markers', 'value')
 )
 def update_map_of_zip_codes_single_attribute(year, stat_01, markers):
+#    result = q.enqueue(build_atx_map_for_single_attribute, year, stat_01, markers)
     return build_atx_map_for_single_attribute(year, stat_01, markers)
 
 
